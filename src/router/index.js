@@ -61,25 +61,25 @@ export default new Router({
                 {
                     path: '/home/feedback',
                     name: 'feedback',
-                    component: resolve => require(['../components/page/system/admin.vue'], resolve),
+                    component: resolve => require(['../components/page/feedback/feedback.vue'], resolve),
                     meta: {title: '反馈列表', permission: true, index: 'feedback'}
                 },
                 {
                     path: '/home/coordinate',
                     name: 'coordinate',
-                    component: resolve => require(['../components/page/system/admin.vue'], resolve),
+                    component: resolve => require(['../components/page/config/site.vue'], resolve),
                     meta: {title: '坐标配置', permission: true, index: 'coordinate'}
                 },
                 {
                     path: '/home/dictionaries',
                     name: 'dictionaries',
-                    component: resolve => require(['../components/page/system/admin.vue'], resolve),
+                    component: resolve => require(['../components/page/config/dictionaries.vue'], resolve),
                     meta: {title: '字典配置', permission: true, index: 'dictionaries'}
                 },
                 {
                     path: '/home/param',
                     name: 'param',
-                    component: resolve => require(['../components/page/system/admin.vue'], resolve),
+                    component: resolve => require(['../components/page/config/param.vue'], resolve),
                     meta: {title: '参数配置', permission: true, index: 'param'}
                 },
             ]
