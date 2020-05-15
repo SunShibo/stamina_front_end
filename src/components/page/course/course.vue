@@ -8,15 +8,6 @@
 		<div class="container">
 			<div class="handle-box">
 				<el-input v-model="courseNameTitle" placeholder="课程名" class="handle-input mr10"></el-input>
-				<!-- <el-select v-model="s_role" placeholder="请选择角色" style="margin-right:10px;">
-                    <el-option label="全部" value=""></el-option>
-                    <el-option
-                            v-for="item in options"
-                            :key="item.id"
-                            :label="item.roleName"
-                            :value="item.id"
-                    ></el-option>
-                </el-select> -->
 				<el-button type="primary" icon="search" @click="search">搜索</el-button>
 				<el-button type="primary" icon="add" @click="add">新增</el-button>
 			</div>
@@ -27,12 +18,12 @@
 				<el-table-column :show-overflow-tooltip="true" width="140" prop="courseName" label="课程名称"></el-table-column>
 				<el-table-column :show-overflow-tooltip="true" width="140" prop="describe" label="课程描述"></el-table-column>
 				<el-table-column :show-overflow-tooltip="true" width="100" prop="siteType" label="训练场地类型"></el-table-column>
-				<el-table-column :show-overflow-tooltip="true" width="130" prop="thumbnailPic">
+				<el-table-column :show-overflow-tooltip="true" width="130" prop="thumbnailPic" label = "缩略图">
 					<template scope="scope">
 						<img :src="scope.row.thumbnailPic" width="100" height="100" />
 					</template>
 				</el-table-column>
-				<el-table-column :show-overflow-tooltip="true" width="130" prop="introducePic">
+				<el-table-column :show-overflow-tooltip="true" width="130" prop="introducePic" label = "介绍图">
 					<template scope="scope">
 						<img :src="scope.row.introducePic" width="100" height="100" />
 					</template>
@@ -57,7 +48,8 @@
 
 				<el-table-column fixed="right" label="操作" width="150" align="center">
 					<template slot-scope="scope">
-						<el-button type="text" icon="el-icon-s-claim" @click="handleHour(scope.$index, scope.row)">课时</el-button>
+						<el-button type="text" icon="el-icon-s-order" @click="handleHour(scope.$index, scope.row)">课时</el-button>
+						<el-button type="text" icon="el-icon-s-finance" @click="handlePrice(scope.$index, scope.row)">价格</el-button>
 						<el-button type="text" icon="el-icon-edit" @click="handleEdit(scope.$index, scope.row)">编辑</el-button>
 						<el-button type="text" icon="el-icon-delete" class="red" @click="handleDelete(scope.$index, scope.row)">删除</el-button>
 					</template>
@@ -68,35 +60,119 @@
 				 :page-sizes="pageSizes" :page-size="PageSize" layout="total, sizes, prev, pager, next, jumper" :total="totalCount"></el-pagination>
 			</div>
 		</div>
-		<!-- 课时弹出框 -->
-		<el-dialog title="课时" :visible.sync="hourVisible" width="75%" :close-on-click-modal="closeOnClickModal">
-			<el-button type="primary" icon="add" @click="add">添加课程</el-button>
-			
-			<el-table :data="hourTableData" border class="table" ref="hourTable" @selection-change="handleSelectionChange" v-loading="$store.state.requestLoading">
+		<!-- 价格弹出框 -->
+		<el-dialog title="价格" :visible.sync="priceVisible" width="75%" :close-on-click-modal="closeOnClickModal">
+			<el-button type="primary" icon="add" @click="addPrice">添加营</el-button>
+			<el-table :data="priceTableData" border class="table" ref="hourTable" @selection-change="handleSelectionChange"
+			 v-loading="$store.state.requestLoading">
 				<el-table-column :show-overflow-tooltip="true" type="index" label="序号" align="center" sortable width="50"></el-table-column>
-				<el-table-column :show-overflow-tooltip="true" prop="className" label="课时名称" width="180"></el-table-column>
-				<el-table-column :show-overflow-tooltip="true" prop="sort" label="排序级别" width="50"></el-table-column>
+				<el-table-column :show-overflow-tooltip="true" prop="coursePriceName" label="营名称"></el-table-column>
+				<el-table-column :show-overflow-tooltip="true" prop="openNumber" label="开班人数"></el-table-column>
+				<el-table-column :show-overflow-tooltip="true" prop="fullNumber" label="满员人数"></el-table-column>
+				<el-table-column :show-overflow-tooltip="true" prop="classNumberPrice" label="每课时价格"></el-table-column>
+				<el-table-column :show-overflow-tooltip="true" prop="personNumber" label="每人价格"></el-table-column>
+				<el-table-column :show-overflow-tooltip="true" prop="createTime" label="创建时间" :formatter="formaPriceDate"></el-table-column>
 				<el-table-column fixed="right" label="操作" width="100" align="center">
 					<template slot-scope="scope">
-						<el-button type="text" icon="el-icon-edit" @click="handleEdit(scope.$index, scope.row)">编辑</el-button>
-						<el-button type="text" icon="el-icon-delete" class="red" @click="handleDelete(scope.$index, scope.row)">删除</el-button>
+						<el-button type="text" icon="el-icon-edit" @click="handleEditPrice(scope.$index, scope.row)">编辑</el-button>
+						<el-button type="text" icon="el-icon-delete" class="red" @click="handlePriceDelete(scope.$index, scope.row)">删除</el-button>
 					</template>
 				</el-table-column>
 			</el-table>
-			
-			
 			<span slot="footer" class="dialog-footer">
-				<el-button type="primary" :loading="$store.state.requestLoading" @click="deleteRow()">确 定</el-button>
-				<el-button @click="delVisible = false">取 消</el-button>
+				<el-button @click="priceVisible = false">关 闭</el-button>
 			</span>
 		</el-dialog>
 
+
+		<!-- 课时弹出框 -->
+		<el-dialog title="课时" :visible.sync="hourVisible" width="75%" :close-on-click-modal="closeOnClickModal">
+			<el-button type="primary" icon="add" @click="addHour" :disabled="disabled">添加课时</el-button>
+			<el-table :data="hourTableData" border class="table" ref="hourTable" @selection-change="handleSelectionChange"
+			 v-loading="$store.state.requestLoading">
+				<el-table-column :show-overflow-tooltip="true" type="index" label="序号" align="center" sortable width="50"></el-table-column>
+				<el-table-column :show-overflow-tooltip="true" prop="className" label="课时名称"></el-table-column>
+				<el-table-column :show-overflow-tooltip="true" prop="sort" label="排序级别"></el-table-column>
+				<el-table-column fixed="right" label="操作" width="100" align="center">
+					<template slot-scope="scope">
+						<el-button type="text" icon="el-icon-edit" @click="handleEditHour(scope.$index, scope.row)">编辑</el-button>
+						<el-button type="text" icon="el-icon-delete" class="red" @click="handleHourDelete(scope.$index, scope.row)">删除</el-button>
+					</template>
+				</el-table-column>
+			</el-table>
+			<span slot="footer" class="dialog-footer">
+				<el-button @click="hourVisible = false">关 闭</el-button>
+			</span>
+		</el-dialog>
+
+		<!-- 删除价格弹出框 -->
+		<el-dialog title="删除" :visible.sync="delPriceVisible" width="25%" :close-on-click-modal="closeOnClickModal">
+			<span>确定删除营吗?</span>
+			<span slot="footer" class="dialog-footer">
+				<el-button type="primary" :loading="$store.state.requestLoading" @click="deletePrice()">确 定</el-button>
+				<el-button @click="delPriceVisible = false">取 消</el-button>
+			</span>
+		</el-dialog>
+
+		<!-- 删除课时弹出框 -->
+		<el-dialog title="删除" :visible.sync="delHourVisible" width="25%" :close-on-click-modal="closeOnClickModal">
+			<span>确定删除课时吗?</span>
+			<span slot="footer" class="dialog-footer">
+				<el-button type="primary" :loading="$store.state.requestLoading" @click="deleteHour()">确 定</el-button>
+				<el-button @click="delHourVisible = false">取 消</el-button>
+			</span>
+		</el-dialog>
 		<!-- 删除弹出框 -->
 		<el-dialog title="删除" :visible.sync="delVisible" width="25%" :close-on-click-modal="closeOnClickModal">
 			<span>确定删除吗?</span>
 			<span slot="footer" class="dialog-footer">
 				<el-button type="primary" :loading="$store.state.requestLoading" @click="deleteRow()">确 定</el-button>
 				<el-button @click="delVisible = false">取 消</el-button>
+			</span>
+		</el-dialog>
+
+		<!-- 编辑课时弹出框 -->
+		<el-dialog title="新增/编辑课时" :visible.sync="editHourVisible" width="75%" height="700px" :close-on-click-modal="closeOnClickModal">
+			<el-form ref="courseform" :model="form" :rules="hourRules" label-width="50px">
+				<el-form-item label-width="100px" label="课时名称" prop="className" :rules="[{ required: true, message: '该项不能为空', trigger: 'blur' }]">
+					<el-input v-model="form.className"></el-input>
+				</el-form-item>
+				<el-form-item label-width="100px" label="排序" prop="sort" :rules="[{ required: true, message: '序号不能为空'},{type: 'number', message: '序号必须为数字值'}]">
+					<el-input v-model.number="form.sort"></el-input>
+				</el-form-item>
+
+			</el-form>
+			<span slot="footer" class="dialog-footer">
+				<el-button type="primary" :loading="$store.state.requestLoading" @click="saveHourEdit('form')">确
+					定</el-button>
+				<el-button @click="editHourVisible = false">取 消</el-button>
+			</span>
+		</el-dialog>
+
+
+		<!-- 编辑价格弹出框 -->
+		<el-dialog title="新增/编辑价格" :visible.sync="editPriceVisible" width="75%" height="700px" :close-on-click-modal="closeOnClickModal">
+			<el-form ref="courseform" :model="form" :rules="priceRules" label-width="50px">
+				<el-form-item label-width="100px" label="营名称" prop="coursePriceName" :rules="[{ required: true, message: '该项不能为空', trigger: 'blur' }]">
+					<el-input v-model="form.coursePriceName"></el-input>
+				</el-form-item>
+				<el-form-item label-width="120px" label="开班每课时价格" prop="classNumberPrice" :rules="[{ required: true, message: '开班每课时价格不能为空'}]">
+					<el-input v-model="form.classNumberPrice"></el-input>
+				</el-form-item>
+				<el-form-item label-width="100px" label="每人价格" prop="personNumber" :rules="[{ required: true, message: '每人价格不能为空'}]">
+					<el-input v-model="form.personNumber"></el-input>
+				</el-form-item>
+				<el-form-item label-width="100px" label="开班人数" prop="openNumber" :rules="[{ required: true, message: '开班人数不能为空'},{type: 'number', message: '开班人数必须为数字值'}]">
+					<el-input v-model.number="form.openNumber"></el-input>
+				</el-form-item>
+				<el-form-item label-width="100px" label="满员人数" prop="fullNumber" :rules="[{ required: true, message: '满员人数不能为空'},{type: 'number', message: '满员人数必须为数字值'}]">
+					<el-input v-model.number="form.fullNumber"></el-input>
+				</el-form-item>
+			</el-form>
+			<span slot="footer" class="dialog-footer">
+				<el-button type="primary" :loading="$store.state.requestLoading" @click="savePriceEdit('form')">确
+					定</el-button>
+				<el-button @click="editPriceVisible = false">取 消</el-button>
 			</span>
 		</el-dialog>
 
@@ -116,8 +192,8 @@
 						<el-form-item label-width="100px" label="适合年龄" prop="studentsSex" :rules="[{ required: true, message: '该项不能为空', trigger: 'blur' }]">
 							<el-input v-model="form.studentsSex"></el-input>
 						</el-form-item>
-						<el-form-item label-width="100px" label="课时数" prop="classNumber" :rules="[{ required: true, message: '该项不能为空', trigger: 'blur' }]">
-							<el-input v-model="form.classNumber"></el-input>
+						<el-form-item label-width="100px" label="课时数" prop="classNumber" :rules="[{ required: true, message: '该项不能为空', trigger: 'blur' },{type: 'number', message: '课时必须为数字值'}]">
+							<el-input v-model.number="form.classNumber"></el-input>
 						</el-form-item>
 						<el-form-item label-width="100px" label="训练频次" prop="frequency" :rules="[{ required: true, message: '该项不能为空', trigger: 'change' }]">
 							<el-input v-model="form.frequency"></el-input>
@@ -256,8 +332,10 @@
 		},
 		data() {
 			return {
-				/* 测试用数据区 */
+				editPriceVisible: false,
+				delPriceVisible:false,
 				datelist: [],
+				disabled: false,
 
 				active: 0,
 				dynamicTags: [],
@@ -283,6 +361,10 @@
 				editVisible: false,
 				//删除框体默认状态
 				delVisible: false,
+				//删除课时框体状态
+				delHourVisible: false,
+				//新增\修改课时窗体状态
+				editHourVisible: false,
 				//步骤名
 				nextTitle: "下一步",
 
@@ -296,13 +378,54 @@
 				//类型集合
 				typeOptions: [],
 				//课时框的默认状态
-				hourVisible : false,
+				hourVisible: false,
 				//价格框的默认状态
 				priceVisible: false,
 				show: '',
 				//提交表单
 				form: {},
+				hourForm: {},
+				priceForm: [],
 				count: 0,
+				//课时检测规则
+				hourRules: {
+					className: [{
+						required: true,
+						message: '请输入课时名称',
+						trigger: 'blur'
+					}],
+				},
+
+				priceRules: {
+					coursePriceName: [{
+						required: true,
+						message: '请输入营名称',
+						trigger: 'blur'
+					}],
+					classNumberPrice: [{
+						required: true,
+						message: '开班每课时价格',
+						trigger: 'blur'
+					}],
+					personNumber: [{
+						required: true,
+						message: '请输入每人价格',
+						trigger: 'blur'
+					}],
+					openNumber: [{
+						required: true,
+						message: '请输入开班人数',
+						trigger: 'blur'
+					}],
+					fullNumber: [{
+						required: true,
+						message: '请输入满员人数',
+						trigger: 'blur'
+					}],
+				},
+
+				hourCount: 0,
+
 				//检测规则
 				rules: {
 					courseName: [{
@@ -382,6 +505,7 @@
 			}
 		},
 		methods: {
+
 			/* 图片上传 */
 			onUpLoadError() {
 				this.$message('出现错误，请重新尝试');
@@ -426,6 +550,13 @@
 				return time.getFullYear() + '-' + (time.getMonth() + 1) + '-' + time.getDate() + " " + time.getHours() + ":" + time
 					.getMinutes() + ":" + time.getSeconds();
 			},
+
+			formaPriceDate(row) {
+				let time = new Date(row.createTime);
+				return time.getFullYear() + '-' + (time.getMonth() + 1) + '-' + time.getDate() + " " + time.getHours() + ":" + time
+					.getMinutes() + ":" + time.getSeconds();
+			},
+
 			//上一步命名冲突
 			bac() {
 				if (this.active-- <= 0) this.active = 0;
@@ -525,7 +656,7 @@
 						break;
 					case 3:
 						this.$axios.post('/diction/queryValue', {
-							kId: 3
+							kId: kid
 						}).then(res => {
 							this.typeOptions = res.data;
 						});
@@ -543,22 +674,185 @@
 				this.tags = [];
 				this.editVisible = true;
 			},
+			addHour() {
+				this.form = {};
+				this.editHourVisible = true;
+			},
+
+			addPrice() {
+				this.form = {};
+				this.editPriceVisible = true;
+			},
+			//新增\更新价格信息
+			savePriceEdit() {
+				this.$refs.courseform.validate(valid => {
+					if (valid) {
+						/* 添加 */
+						const priceitem = this.form;
+						if (this.form.id == '' || this.form.id == null) {
+							this.form = {
+								courseId: this.priceForm,
+								coursePriceName: priceitem.coursePriceName,
+								classNumberPrice: priceitem.classNumberPrice,
+								personNumber: priceitem.personNumber,
+								openNumber: priceitem.openNumber,
+								fullNumber: priceitem.fullNumber
+							};
+							let fd = JSON.parse(JSON.stringify(this.form));
+							delete fd.id;
+							this.$axios.post('/price/add', fd).then(res => {
+								if (!res.success) {
+									this.$message.success(res.errMsg);
+									return;
+								}
+								this.$message.success(`操作成功`);
+								this.getPriceData(this.form.courseId);
+								this.form = {};
+								this.editPriceVisible = false;
+							});
+						} else {
+							/* 更新 */
+							this.form = {
+								id: priceitem.id,
+								courseId: this.priceForm,
+								coursePriceName: priceitem.coursePriceName,
+								classNumberPrice: priceitem.classNumberPrice,
+								personNumber: priceitem.personNumber,
+								openNumber: priceitem.openNumber,
+								fullNumber: priceitem.fullNumber
+							};
+							this.$axios.post('/price/update', this.form).then(res => {
+								if (!res.success) {
+									this.$message.success(res.errMsg);
+									return;
+								}
+								this.$message.success(`操作成功`);
+								this.form = {};
+								this.getPriceData(this.priceTableData[0].courseId);
+								this.editPriceVisible = false;
+							});
+						}
+						this.active = 0;
+					} else {
+						console.error('error submit!!');
+						return false;
+					}
+				});
+			},
+
+			saveHourEdit() {
+				this.$refs.courseform.validate(valid => {
+					if (valid) {
+						/* 添加 */
+						const houritem = this.form;
+						if (this.form.id == '' || this.form.id == null) {
+							this.form = {
+								courseId: this.hourForm,
+								className: houritem.className,
+								sort: houritem.sort
+							};
+							let fd = JSON.parse(JSON.stringify(this.form));
+							delete fd.id;
+							this.$axios.post('/classNumber/add', fd).then(res => {
+								if (!res.success) {
+									this.$message.success(res.errMsg);
+									return;
+								}
+								this.$message.success(`操作成功`);
+								this.getHoursData(this.form.courseId);
+								this.form = {};
+								this.editHourVisible = false;
+							});
+						} else {
+							/* 更新 */
+							this.form = {
+								id: houritem.id,
+								className: houritem.className,
+								sort: houritem.sort
+							};
+							this.$axios.post('/classNumber/update', this.form).then(res => {
+								if (!res.success) {
+									this.$message.success(res.errMsg);
+									return;
+								}
+								this.$message.success(`操作成功`);
+								this.form = {};
+								this.getHoursData(this.hourTableData[0].courseId);
+								this.editHourVisible = false;
+							});
+						}
+						this.active = 0;
+					} else {
+						console.error('error submit!!');
+						return false;
+					}
+				});
+			},
 			//弹出删除框
 			del() {
 				this.delVisible = true;
 			},
+			getPriceData(cid) {
+				this.$axios
+					.post('/price/query', {
+						courseId: cid
+					})
+					.then(res => {
+						this.priceTableData = res.data.records;
+					});
+			},
+
+			getHoursData(cid) {
+				this.$axios
+					.post('/classNumber/query', {
+						courseId: cid
+					})
+					.then(res => {
+						this.hourTableData = res.data.records;
+						this.Count = res.data.total;
+						this.Count >= this.hourCount ? this.disabled = true : this.disabled = false;
+					});
+			},
+
+
+			//定位修改价格的元素
+			handlePrice(index, row) {
+				this.priceForm = row.id;
+				this.getPriceData(row.id);
+				this.priceVisible = true;
+
+			},
+
+
 			//定位修改课时的元素
-			handleHour(index,row){
-				this.form = {};
-				const item = this.hourTableData[index];
-				
-				this.form = {
-					id: row.id,
-					className: item.className,
-					sort: item.sort
-				};
-				
+			handleHour(index, row) {
+				this.hourCount = row.classNumber;
+				this.hourForm = row.id;
+				this.getHoursData(row.id);
 				this.hourVisible = true;
+			},
+			
+			handleHourDelete(index, row) {
+				this.form = row;
+				this.idx = index;
+				this.delHourVisible = true;
+			},
+			//控制开启修改课时
+			handleEditHour(index, row) {
+				this.form = row;
+				this.idx = index;
+				this.editHourVisible = true;
+			},
+			//控制开启修改价格
+			handleEditPrice(index,row){
+				this.form = row;
+				this.idx = index;
+				this.editPriceVisible = true;
+			},
+			handlePriceDelete(index,row){
+				this.form = row;
+				this.idx = index;
+				this.delPriceVisible = true;
 			},
 			
 			//定位修改的元素
@@ -644,10 +938,9 @@
 				});
 			},
 
-			// 确定删除
+			// 确定删除课程
 			deleteRow() {
 				var id = this.form.id;
-				id = id;
 				this.$axios.post('/course/delCourse', {
 					id: id
 				}).then(res => {
@@ -659,7 +952,42 @@
 					this.$message.success('删除成功');
 					this.delVisible = false;
 				});
-			}
+			},
+			//确定删除课时
+			deleteHour() {
+				var id = this.form.id;
+				this.$axios.post('/classNumber/delete', {
+					id: id
+				}).then(res => {
+					if (!res.success) {
+						this.$message.success(res.errMsg);
+						return;
+					}
+					this.hourTableData.splice(this.idx, 1);
+					this.$message.success('删除成功');
+					this.form = {};
+					this.idx = "";
+					this.delHourVisible = false;
+				});
+			},
+			//确定删除价格
+			deletePrice() {
+				var id = this.form.id;
+				this.$axios.post('/price/delete', {
+					id: id
+				}).then(res => {
+					if (!res.success) {
+						this.$message.success(res.errMsg);
+						return;
+					}
+					this.priceTableData.splice(this.idx, 1);
+					this.$message.success('删除成功');
+					this.form = {};
+					this.idx = "";
+					this.delPriceVisible = false;
+				});
+			},
+
 		}
 	};
 </script>

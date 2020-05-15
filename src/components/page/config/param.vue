@@ -112,7 +112,7 @@
                     id: row.id,
                     values: row.values
                 };
-                if (row.id != 1) {
+                if (row.id == 2) {
                     this.idx = index;
                     this.editVisible = true;
                 } else {
