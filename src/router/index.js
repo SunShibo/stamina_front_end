@@ -69,7 +69,7 @@ export default new Router({
 				{
 					path: '/home/order',
 					name: 'order',
-					component: resolve => require(['../components/page/system/admin.vue'], resolve),
+					component: resolve => require(['../components/page/order/order.vue'], resolve),
 					meta: {
 						title: '订单列表',
 						permission: true,

@@ -18,11 +18,11 @@
 			<el-table :data="tableData" border class="table" ref="multipleTable" @selection-change="handleSelectionChange"
 			 v-loading="$store.state.requestLoading">
 				<el-table-column :show-overflow-tooltip="true" type="index" label="序号" align="center" sortable width="50"></el-table-column>
-				<el-table-column :show-overflow-tooltip="true" width="80" prop="coachName" label="是否已读"></el-table-column>
-				<el-table-column :show-overflow-tooltip="true" prop="coachName" label="反馈内容"></el-table-column>
+				<el-table-column :show-overflow-tooltip="true" width="80" prop="isReadStatus" label="是否已读"></el-table-column>
+				<el-table-column :show-overflow-tooltip="true" prop="content" label="反馈内容"></el-table-column>
 				<el-table-column :show-overflow-tooltip="true" prop="createTime" label="反馈时间" :formatter="formatDate"></el-table-column>
-				<el-table-column :show-overflow-tooltip="true" width="80" prop="coachName" label="用户姓名" :formatter="formatInfo"></el-table-column>
-				<el-table-column :show-overflow-tooltip="true" width="150" prop="phone" label="手机号" :formatter="formatInfo"></el-table-column>
+				<el-table-column :show-overflow-tooltip="true" width="80" prop="name" label="用户姓名" :formatter="formatNameInfo"></el-table-column>
+				<el-table-column :show-overflow-tooltip="true" width="150" prop="phone" label="手机号" :formatter="formatPhoneInfo"></el-table-column>
 				<el-table-column fixed="right" label="操作" width="150" align="center">
 					<template slot-scope="scope">
 						<el-button type="text" icon="el-icon-edit" @click="handleReadEdit(scope.$index, scope.row)">查看反馈内容</el-button>
@@ -37,14 +37,12 @@
 
 		<!-- 删除价格弹出框 -->
 		<el-dialog title="查看反馈信息" :visible.sync="readVisible" width="75%" :close-on-click-modal="closeOnClickModal">
-			<span>反馈用户</span>
-			
-			<span>
-				
-			</span>
-			
+			<span v-show="fname!=''">{{fname}}:</span>
+			<span v-show="fname==''">匿名用户:</span>
+
+			<span>{{fcontent}}</span>
 			<span slot="footer" class="dialog-footer">
-				<el-button @click="readVisible = false">取 消</el-button>
+				<el-button @click="readVisible = false">关闭</el-button>
 			</span>
 		</el-dialog>
 	</div>
@@ -67,13 +65,19 @@
 				pageSizes: [10, 20, 50, 100],
 				// 默认每页显示的条数（可修改）
 				PageSize: 10,
-				
+
 				readVisible: false,
-				
+
+				fname: "",
+
+				fcontent: "",
+
 				datelist: [],
 				//辅助元素定位
 				idx: -1,
 				show: '',
+
+				fstatus: "",
 				//提交表单
 				form: {},
 				count: 0,
@@ -95,7 +99,8 @@
 		watch: {
 			feedbackStatus(val, oldVal) {
 				console.log("inputVal = " + val + " , oldValue = " + oldVal);
-				this.getData(val);
+				this.fstatus = val;
+				this.getData();
 			}
 		},
 		created() {
@@ -111,27 +116,54 @@
 		},
 		methods: {
 			// 获取 easy-mock 的模拟数据
-			getData(status) {
+			getData() {
 				// 开发环境使用 easy-mock 数据，正式环境使用 json 文件
 				this.$axios
 					.post('/feedback/query', {
 						pageNo: this.currentPage,
 						pageSize: this.PageSize,
-						isReadStatus: status
+						isReadStatus: this.fstatus
 					})
 					.then(res => {
 						this.tableData = res.data.records;
 						this.totalCount = res.data.total;
 					});
 			},
-			
+
 			//控制打开详细信息查看框体
 			handleReadEdit(index, row) {
 				this.form = row;
 				this.idx = index;
+				if (row.isReadStatus == "no") {
+					this.changeFeedbackStatus(row.id);
+				}
+				row.status == "no" ? this.fname = "" : this.fname = row.name;
+				this.fcontent = row.content;
 				this.readVisible = true;
 			},
-			
+
+			changeFeedbackStatus(fid) {
+				this.$axios.post('/feedback/query', {
+					id: fid
+				}).then(res => {
+					if (!res.success) {
+						this.$message.success(res.errMsg);
+						return;
+					}
+					this.$axios.post('/feedback/updateReadStatus', {
+						id: fid
+					}).then(res => {
+						if (!res.success) {
+							this.$message.success(res.errMsg);
+							return;
+						}
+						this.$message.success(`已读`);
+					});
+
+				});
+			},
+
+
 
 			handleSelectionChange(val) {
 				this.multipleSelection = val;
@@ -139,10 +171,6 @@
 			search() {
 				this.getData();
 			},
-			searchHour() {
-
-			},
-
 
 			showInput() {
 				this.inputVisible = true;
@@ -176,17 +204,18 @@
 				// 切换页码时，要获取每页显示的条数
 				this.getData(this.PageSize, val * this.pageSize);
 			},
-			
+
 			formatDate(row) {
 				let time = new Date(row.createTime);
 				return time.getFullYear() + '-' + (time.getMonth() + 1) + '-' + time.getDate() + " " + time.getHours() + ":" + time
 					.getMinutes() + ":" + time.getSeconds();
 			},
-			
-			formatInfo(row){
-				if(row.status === "no"){
-					return "匿名";
-				}
+
+			formatNameInfo(row) {
+				return row.status == "no" ? "匿名" : row.name;
+			},
+			formatPhoneInfo(row) {
+				return row.status == "no" ? "匿名" : row.phone;
 			},
 		}
 	};
@@ -210,7 +239,7 @@
 		font-size: 16px;
 		text-align: center;
 	}
-	
+
 	.table {
 		width: 100%;
 		font-size: 14px;

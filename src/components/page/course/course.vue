@@ -1,5 +1,5 @@
 <template>
-	<div class="table">
+	<div class="table" v-loading="loading">
 		<div class="crumbs">
 			<el-breadcrumb separator="/">
 				<el-breadcrumb-item><i class="el-icon-lx-cascades">课程列表</i></el-breadcrumb-item>
@@ -332,6 +332,8 @@
 		},
 		data() {
 			return {
+				loading: true,
+				
 				editPriceVisible: false,
 				delPriceVisible:false,
 				datelist: [],
@@ -626,6 +628,7 @@
 			// 获取 easy-mock 的模拟数据
 			getData() {
 				// 开发环境使用 easy-mock 数据，正式环境使用 json 文件
+				this.loading = true;
 				this.$axios
 					.post('/course/queryCourse', {
 						pageNo: this.currentPage,
@@ -635,6 +638,7 @@
 					.then(res => {
 						this.tableData = res.data.records;
 						this.totalCount = res.data.total;
+						this.loading = false;
 					});
 			},
 			//获取字典数据

@@ -54,7 +54,7 @@
 			</div>
 		</div>
 		<!-- 课时弹出框 -->
-		<el-dialog title="课时" :visible.sync="hourVisible" width="75%" :close-on-click-modal="closeOnClickModal">
+		<!-- <el-dialog title="课时" :visible.sync="hourVisible" width="75%" :close-on-click-modal="closeOnClickModal">
 			<div class="handle-box">
 				<template>
 					<el-select v-model="hourStatus" placeholder="请选择">
@@ -83,7 +83,7 @@
 			<span slot="footer" class="dialog-footer">
 				<el-button @click="hourVisible = false">关 闭</el-button>
 			</span>
-		</el-dialog>
+		</el-dialog> -->
 
 		<!-- 删除价格弹出框 -->
 		<el-dialog title="删除" :visible.sync="delVisible" width="25%" :close-on-click-modal="closeOnClickModal">
