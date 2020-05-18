@@ -17,7 +17,7 @@
 				<el-table-column :show-overflow-tooltip="true" type="index" label="序号" align="center" sortable width="50"></el-table-column>
 				<el-table-column :show-overflow-tooltip="true" width="140" prop="coachName" label="教练名称"></el-table-column>
 				<el-table-column :show-overflow-tooltip="true" width="130" prop="headPic" label="教练头像">
-					<template scope="scope">
+					<template slot-scope="scope">
 						<img :src="scope.row.headPic" width="100" height="100" />
 					</template>
 				</el-table-column>
@@ -29,12 +29,12 @@
 				<el-table-column :show-overflow-tooltip="true" width="100" prop="level" label="等级"></el-table-column>
 				<el-table-column :show-overflow-tooltip="true" width="100" prop="teachingTypes" label="可授课种类"></el-table-column>
 				<el-table-column :show-overflow-tooltip="true" width="130" prop="idCardPicPositive" label="身份证正面">
-					<template scope="scope">
+					<template slot-scope="scope">
 						<img :src="scope.row.idCardPicPositive" width="100" height="100" />
 					</template>
 				</el-table-column>
 				<el-table-column :show-overflow-tooltip="true" width="130" prop="idCardPicReverse" label="身份证反面">
-					<template scope="scope">
+					<template slot-scope="scope">
 						<img :src="scope.row.idCardPicReverse" width="100" height="100" />
 					</template>
 				</el-table-column>
