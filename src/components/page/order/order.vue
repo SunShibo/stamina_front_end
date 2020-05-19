@@ -223,7 +223,7 @@
 						":" + eTime
 						.getMinutes() + ":" + eTime.getSeconds();
 						
-					this.Rurl = "/export/order?startDate=" + strSTime + "&endDate=" + strETime + "&strOrder=" + strOrder;
+					this.Rurl = "/api/export/order?startDate=" + strSTime + "&endDate=" + strETime + "&strOrder=" + strOrder;
 				}
 			}
 		},
@@ -299,8 +299,6 @@
 				return time.getFullYear() + '/' + (time.getMonth() + 1) + '/' + time.getDate() + " " + time.getHours() + ":" + time
 					.getMinutes() + ":" + time.getSeconds();
 			},
-
-
 
 			// 每页显示的条数
 			handleSizeChange(val) {
