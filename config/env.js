@@ -3,10 +3,10 @@ let baseURL = '';
 
 //开发环境下
 if (process.env.NODE_ENV == 'development') {
-    baseURL = ' http://192.168.1.106:8082';
+    baseURL = ' http://at.sia-edu.com/api';
 
 } else if (process.env.NODE_ENV == 'production') {
-    baseURL =  ' http://192.168.1.106:8082';
+    baseURL =  ' http://at.sia-edu.com/api';
 }
 
 export {

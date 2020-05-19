@@ -114,7 +114,7 @@
         this.$axios.post("/diction/queryKey").then(res => {
           this.options = res.data;
         });
-        this.$axios.post(" /diction/queryValue",{
+        this.$axios.post("/diction/queryValue",{
           kId:1
         }).then(res => {
           this.tableData = res.data;
@@ -126,7 +126,7 @@
         this.editVisible=true;
       },
       change(){
-        this.$axios.post(" /diction/queryValue",{
+        this.$axios.post("/diction/queryValue",{
           kId:this.select
         }).then(res => {
           this.tableData = res.data;

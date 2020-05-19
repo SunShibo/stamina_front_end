@@ -49,7 +49,7 @@ export default new Router({
 				{
 					path: '/home/user',
 					name: 'user',
-					component: resolve => require(['../components/page/system/admin.vue'], resolve),
+					component: resolve => require(['../components/page/user/user.vue'], resolve),
 					meta: {
 						title: '用户管理',
 						permission: true,
