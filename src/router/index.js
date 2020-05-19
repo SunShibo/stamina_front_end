@@ -19,7 +19,7 @@ export default new Router({
 			children: [{
 				path: '/home/statistics',
 				name: 'statistics',
-				component: resolve => require(['../components/page/system/admin.vue'], resolve),
+				component: resolve => require(['../components/page/system/statistics.vue'], resolve),
 				meta: {
 					title: '数据统计',
 					permission: true,
