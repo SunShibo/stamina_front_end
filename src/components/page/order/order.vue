@@ -18,7 +18,7 @@
 				</el-date-picker>
 				<el-button type="primary" icon="search" @click="search">搜索</el-button>
 				<el-button type="primary" icon="search" @click="reset">重置</el-button>
-				<a :href="Rurl" @click="outputData">
+				<a :href="Rurl" >
 					<el-button type="primary" icon="search">导出报表</el-button>
 				</a>
 			</div>
@@ -144,7 +144,7 @@
 				}],
 
 				selectTimeData: [],
-				Rurl: "",
+				Rurl: "#",
 				// 总数据
 				tableData: [],
 				childrenTableData: [],
@@ -392,10 +392,6 @@
 				this.classOrderStatus = "";
 				this.selectTimeData = [];
 				this.getData();
-			},
-
-			outputData() {
-				
 			},
 
 			formatOrderStatusDate(row) {

@@ -8,21 +8,25 @@
 		<div class="container">
 			<div class="handle-box">
 				<el-input v-model="coachNameData" placeholder="教练姓名" class="handle-input mr10"></el-input>
-				<el-input v-model="coachPhoneData" placeholder="教练手机号码" class="handle-input mr10"></el-input>
+				<el-input v-model="coachPhoneData" placeholder="教练手机号码" width="100" class="handle-input mr10"></el-input>
 				<el-date-picker :editable="false" v-model="timeData" type="datetimerange" range-separator="至" start-placeholder="开始日期"
 				 end-placeholder="结束日期">
 				</el-date-picker>
 				<template>
+					<span>教练结算状态:</span>
 					<el-select v-model="coachSettlementStatusData" placeholder="请选择">
 						<el-option v-for="item in coachSettlementStatusOptions" :key="item.id" :label="item.label" :value="item.value"></el-option>
 					</el-select>
 				</template>
+				<br />
 				<template>
+					<span>是否需要给教练结算:</span>
 					<el-select v-model="isCoachSettlementData" placeholder="请选择">
 						<el-option v-for="item in isCoachSettlementOptions" :key="item.id" :label="item.label" :value="item.value"></el-option>
 					</el-select>
 				</template>
 				<template>
+					<span>订单状态:</span>
 					<el-select v-model="orderStatusData" placeholder="请选择">
 						<el-option v-for="item in orderStatusOptions" :key="item.id" :label="item.label" :value="item.value"></el-option>
 					</el-select>
@@ -33,32 +37,31 @@
 				<el-button type="primary" icon="add" @click="reset">重置</el-button>
 			</div>
 			<!-- 信息展示 -->
-			<el-table :data="tableData" border class="table" ref="multipleTable"
-			 v-loading="$store.state.requestLoading">
+			<el-table :data="tableData" border class="table" ref="multipleTable" v-loading="$store.state.requestLoading">
 				<template slot-scope="scope">
 					<el-table-column :show-overflow-tooltip="true" type="index" label="序号" align="center" sortable width="50"></el-table-column>
 					<el-table-column :show-overflow-tooltip="true" width="100" prop="coachName" label="教练姓名"></el-table-column>
-					<el-table-column :show-overflow-tooltip="true" width="100" prop="coachSettlementStatus" label="教练结算状态"></el-table-column>
-					<el-table-column :show-overflow-tooltip="true" width="100" prop="isCoachSettlement" label="是否给教练结算"></el-table-column>
+					<el-table-column :show-overflow-tooltip="true" width="100" prop="coachSettlementStatus" label="教练结算状态" :formatter="formatCoachSettlementStatus"></el-table-column>
+					<el-table-column :show-overflow-tooltip="true" width="100" prop="isCoachSettlement" label="是否需要给教练结算" :formatter="formatIsCoachSettlement"></el-table-column>
 					<el-table-column :show-overflow-tooltip="true" width="140" prop="phone" label="手机号码"></el-table-column>
-					<el-table-column :show-overflow-tooltip="true" width="100" prop="attendTime" label="上课时间"></el-table-column>
-					<el-table-column :show-overflow-tooltip="true" width="100" prop="finishTime" label="下课时间" ></el-table-column>
-					<el-table-column :show-overflow-tooltip="true" width="100" prop="courseName" label="课程名称"></el-table-column>
-					<el-table-column :show-overflow-tooltip="true" width="100" prop="orderNumber" label="订单号"></el-table-column>
+					<el-table-column :show-overflow-tooltip="true" width="140" prop="attendTime" label="上课时间" :formatter="formatAttendTime"></el-table-column>
+					<el-table-column :show-overflow-tooltip="true" width="140" prop="finishTime" label="下课时间" :formatter="formatFinishTime"></el-table-column>
+					<el-table-column :show-overflow-tooltip="true" width="150" prop="courseName" label="课程名称"></el-table-column>
+					<el-table-column :show-overflow-tooltip="true" width="180" prop="orderNumber" label="订单号"></el-table-column>
 					<el-table-column :show-overflow-tooltip="true" width="100" prop="campName" label="营名称"></el-table-column>
-					<el-table-column :show-overflow-tooltip="true" width="100" prop="isOpen" label="是否开课"></el-table-column>
-					<el-table-column :show-overflow-tooltip="true" width="100" prop="createTime" label="下单时间" ></el-table-column>
-					<el-table-column :show-overflow-tooltip="true" width="100" prop="orderStatus" label="订单状态"></el-table-column>
+					<el-table-column :show-overflow-tooltip="true" width="100" prop="isOpen" label="是否开课" :formatter="formatIsOpen"></el-table-column>
+					<el-table-column :show-overflow-tooltip="true" width="140" prop="createTime" label="下单时间" :formatter="formatCreateTime"></el-table-column>
+					<el-table-column :show-overflow-tooltip="true" width="100" prop="orderStatus" label="订单状态" :formatter="formatOrderStatus"></el-table-column>
 					<el-table-column :show-overflow-tooltip="true" width="100" prop="realPrice" label="实际支付"></el-table-column>
 					<el-table-column :show-overflow-tooltip="true" width="100" prop="orderRemark" label="订单备注"></el-table-column>
-					<el-table-column :show-overflow-tooltip="true" width="100" prop="userContactPhone" label="用户联系电话"></el-table-column>
+					<el-table-column :show-overflow-tooltip="true" width="150" prop="userContactPhone" label="用户联系电话"></el-table-column>
 					<el-table-column :show-overflow-tooltip="true" width="100" prop="userContactName" label="用户名称"></el-table-column>
 					<el-table-column :show-overflow-tooltip="true" width="100" prop="studentName" label="学员名称"></el-table-column>
 					<el-table-column :show-overflow-tooltip="true" width="100" prop="detailedAddress" label="地址"></el-table-column>
-					<el-table-column :show-overflow-tooltip="true" width="100" prop="classNumberName" label="课时名称"></el-table-column>
+					<el-table-column :show-overflow-tooltip="true" width="180" prop="classNumberName" label="课时名称"></el-table-column>
 					<el-table-column :show-overflow-tooltip="true" width="100" prop="price" label="课时价格"></el-table-column>
-					<el-table-column :show-overflow-tooltip="true" width="100" prop="attendStatus" label="上课状态"></el-table-column>
-					<el-table-column :show-overflow-tooltip="true" width="100" prop="orderChildRemark" label="子订单备注"></el-table-column>
+					<el-table-column :show-overflow-tooltip="true" width="100" prop="attendStatus" label="上课状态" :formatter="formatAttendStatus"></el-table-column>
+					<el-table-column :show-overflow-tooltip="true" width="180" prop="orderChildRemark" label="子订单备注"></el-table-column>
 				</template>
 			</el-table>
 			<div class="pagination">
@@ -143,22 +146,13 @@
 
 			};
 		},
-		
-		beforeCreate: function() {
-			function formatDate(time) {
-				let rtime = new Date(time);
-				return rtime.getFullYear() + '-' + (rtime.getMonth() + 1) + '-' + rtime.getDate() + " " + rtime.getHours() + ":" + rtime
-					.getMinutes() + ":" + rtime.getSeconds();
-			}
-			
-		},
 		created() {
-			
+
 			this.getData();
-			
+
 		},
 		computed: {
-			
+
 			data() {
 				return this.tableData;
 			},
@@ -168,7 +162,73 @@
 		},
 		methods: {
 			
+			formatCoachSettlementStatus(row){
+				switch (row.coachSettlementStatus) {
+					case "yes":
+						return "已结算";
+					case "no":
+						return "未结算";
+				}
+			},
 			
+			formatCreateTime(row){
+				let time = new Date(row.createTime);
+				return time.getFullYear() + '-' + (time.getMonth() + 1) + '-' + time.getDate() + " " + time.getHours() + ":" + time
+					.getMinutes() + ":" + time.getSeconds();
+			},
+			formatAttendStatus(row){
+				switch (row.attendStatus) {
+					case "yes":
+						return "已上课";
+					case "no":
+						return "未上课";
+				}
+			},
+			
+			formatOrderStatus(row){
+				switch (row.orderStatus) {
+					case "notpay":
+						return "未付款";
+					case "spell":
+						return "拼单中";
+					case "attend":
+						return "上课中";
+					case "complete":
+						return "已完成";
+					case "cancel":
+						return "已取消";
+				}
+			},
+			
+			formatIsOpen(row){
+				switch (row.isOpen) {
+					case "yes":
+						return "已开课";
+					case "no":
+						return "尚未开课";
+				}
+			},
+			
+			formatIsCoachSettlement(row){
+				switch (row.isCoachSettlement) {
+					case "yes":
+						return "需要结算";
+					case "no":
+						return "不需要结算";
+				}
+			},
+			formatAttendTime(row){
+				let time = new Date(row.attendTime);
+				return time.getFullYear() + '-' + (time.getMonth() + 1) + '-' + time.getDate() + " " + time.getHours() + ":" + time
+					.getMinutes() + ":" + time.getSeconds();
+			},
+			formatFinishTime(row){
+				let time = new Date(row.finishTime);
+				return time.getFullYear() + '-' + (time.getMonth() + 1) + '-' + time.getDate() + " " + time.getHours() + ":" + time
+					.getMinutes() + ":" + time.getSeconds();
+			},
+
+
 			reset() {
 				this.coachPhoneData = "";
 				this.timeData = [];
@@ -179,20 +239,36 @@
 			},
 			// 获取 easy-mock 的模拟数据
 			getData() {
+				var atime = this.timeData[0];
+				var ftime = this.timeData[1];
+				var strATime = "";
+				var strFTime = "";
+				if (this.timeData == null || this.timeData == "" || this.timeData == 0) {
+
+				} else {
+					strATime = atime.getFullYear() + '-' + (atime.getMonth() + 1) + '-' + atime.getDate() + " " +
+						atime.getHours() +
+						":" + atime
+						.getMinutes() + ":" + atime.getSeconds();
+
+					strFTime = ftime.getFullYear() + '-' + (ftime.getMonth() + 1) + '-' + ftime.getDate() + " " +
+						ftime.getHours() +
+						":" + ftime
+						.getMinutes() + ":" + ftime.getSeconds();
+				}
 				// 开发环境使用 easy-mock 数据，正式环境使用 json 文件
 				this.$axios
 					.post('/coach/queryCoachInfo', {
 						pageNo: this.currentPage,
 						pageSize: this.PageSize,
 						coachId: '',
-						phone: '',
-						attendTime: '',
-						finishTime: '',
-						isCoachSettlement: '',
-						orderStatus: '',
-						coachName: '',
-						coachSettlementStatus: '',
-						
+						phone: this.coachPhoneData,
+						attendTime: strATime,
+						finishTime: strFTime,
+						isCoachSettlement: this.isCoachSettlementData,
+						orderStatus: this.orderStatusData,
+						coachName: this.coachNameData,
+						coachSettlementStatus: this.coachSettlementStatusData,
 					})
 					.then(res => {
 						this.tableData = res.data.records;

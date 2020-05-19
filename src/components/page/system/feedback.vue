@@ -101,6 +101,11 @@
 				console.log("inputVal = " + val + " , oldValue = " + oldVal);
 				this.fstatus = val;
 				this.getData();
+			},
+			readVisible(val, oldVal){
+				if(val == false){
+					this.getData();
+				}
 			}
 		},
 		created() {

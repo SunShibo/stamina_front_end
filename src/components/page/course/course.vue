@@ -20,24 +20,24 @@
 				<el-table-column :show-overflow-tooltip="true" width="100" prop="siteType" label="训练场地类型"></el-table-column>
 				<el-table-column :show-overflow-tooltip="true" width="130" prop="thumbnailPic" label = "缩略图">
 					<template slot-scope="scope">
-						<img :src="scope.row.thumbnailPic" width="100" height="100" />
+						<img :src="scope.row.thumbnailPic" width="50" height="50" />
 					</template>
 				</el-table-column>
 				<el-table-column :show-overflow-tooltip="true" width="130" prop="introducePic" label = "介绍图">
 					<template slot-scope="scope">
-						<img :src="scope.row.introducePic" width="100" height="100" />
+						<img :src="scope.row.introducePic" width="50" height="50" />
 					</template>
 				</el-table-column>
 				<el-table-column :show-overflow-tooltip="true" width="100" prop="studentsSex" label="适合学员年龄"></el-table-column>
 				<el-table-column :show-overflow-tooltip="true" width="100" prop="frequency" label="训练频次"></el-table-column>
 				<el-table-column :show-overflow-tooltip="true" width="130" prop="introduce" label="课程介绍">
 					<template slot-scope="scope">
-						<img :src="scope.row.introduce" width="100" height="100" />
+						<img :src="scope.row.introduce" width="50" height="50" />
 					</template>
 				</el-table-column>
 				<el-table-column :show-overflow-tooltip="true" width="130" prop="ruleIntroduction" label="规则介绍">
 					<template slot-scope="scope">
-						<img :src="scope.row.ruleIntroduction" width="100" height="100" />
+						<img :src="scope.row.ruleIntroduction" width="50" height="50" />
 					</template>
 				</el-table-column>
 				<el-table-column :show-overflow-tooltip="true" width="50" prop="classNumber" label="课时数"></el-table-column>
@@ -208,7 +208,7 @@
 								<el-form-item label-width="100px" label="缩略图" prop="thumbnailPic" :rules="[{ required: true, message: '该项不能为空', trigger: 'blur' }]">
 									<upload class="upload" drag="true" idName="dateId" :onUpLoadSuccess="imgsuccess1" :onUpLoadRemove="imgRemove1"
 									 :onUpLoadError="onUpLoadError" :multiple="true" :drag="true" :show-file-list="true" accept="image/*"
-									 :fileList="datelist" :filesNumber="7">
+									 :fileList="thumbnailPicdatelist" :filesNumber="1">
 									</upload>
 								</el-form-item>
 							</div>
@@ -218,7 +218,7 @@
 								<el-form-item label-width="100px" label="介绍图" prop="introducePic" :rules="[{ required: true, message: '该项不能为空', trigger: 'blur' }]">
 									<upload class="upload" drag="true" idName="dateId" :onUpLoadSuccess="imgsuccess2" :onUpLoadRemove="imgRemove2"
 									 :onUpLoadError="onUpLoadError" :multiple="true" :drag="true" :show-file-list="true" accept="image/*"
-									 :fileList="datelist" :filesNumber="7">
+									 :fileList="introducePicdatelist" :filesNumber="1">
 									</upload>
 								</el-form-item>
 							</div>
@@ -236,7 +236,7 @@
 								<el-form-item label-width="100px" label="课程介绍" prop="introduce" :rules="[{ required: true, message: '该项不能为空', trigger: 'blur' }]">
 									<upload class="upload" drag="true" idName="dateId" :onUpLoadSuccess="imgsuccess3" :onUpLoadRemove="imgRemove3"
 									 :onUpLoadError="onUpLoadError" :multiple="true" :drag="true" :show-file-list="true" accept="image/*"
-									 :fileList="datelist" :filesNumber="7">
+									 :fileList="introducedatelist" :filesNumber="1">
 									</upload>
 								</el-form-item>
 							</div>
@@ -246,7 +246,7 @@
 								<el-form-item label-width="100px" label="规则介绍" prop="ruleIntroduction" :rules="[{ required: true, message: '该项不能为空', trigger: 'blur' }]">
 									<upload class="upload" drag="true" idName="dateId" :onUpLoadSuccess="imgsuccess4" :onUpLoadRemove="imgRemove4"
 									 :onUpLoadError="onUpLoadError" :multiple="true" :drag="true" :show-file-list="true" accept="image/*"
-									 :fileList="datelist" :filesNumber="7">
+									 :fileList="ruleIntroductiondatelist" :filesNumber="1">
 									</upload>
 								</el-form-item>
 							</div>
@@ -262,7 +262,7 @@
 								<div class="grid-content bg-purple">
 									<el-form-item label-width="100px" label="地点类型" prop="siteType" :rules="[{ required: true, message: '该项不能为空', trigger: 'change' }]">
 										<el-select v-model="form.siteType" clearable placeholder="请选择" style="width:260px">
-											<el-option v-for="item in siteTypeOptions"  :key="index" :label="item.value" :value="item.value"></el-option>
+											<el-option v-for="item in siteTypeOptions"  :key="item.id" :label="item.value" :value="item.value"></el-option>
 										</el-select>
 									</el-form-item>
 								</div>
@@ -271,7 +271,7 @@
 								<div class="grid-content bg-purple-light">
 									<el-form-item label-width="100px" label="类型" prop="type" :rules="[{ required: true, message: '该项不能为空', trigger: 'change' }]">
 										<el-select v-model="form.type" clearable placeholder="请选择" style="width:260px">
-											<el-option v-for="item in typeOptions" :key="index" :label="item.value" :value="item.value"></el-option>
+											<el-option v-for="item in typeOptions" :key="item.id" :label="item.value" :value="item.value"></el-option>
 										</el-select>
 									</el-form-item>
 								</div>
@@ -286,15 +286,15 @@
 				<el-row v-show="active === 4">
 					<div>
 						已选择的标签
-						<el-tag v-for="tag in tags" :key="index" closable :disable-transitions="false" @close="tagClose(tag)">
-							{{tag.value}}
+						<el-tag v-for="tag in tags" :key="tag.id" closable :disable-transitions="false" @close="tagClose(tag)">
+							{{tag}}
 						</el-tag>
 						<el-row>
 							<div></div>
 						</el-row>
 						<br />
 						全部标签
-						<el-tag v-for="tag in dynamicTags" :key="index" :disable-transitions="false" @close="handleClose(tag)" @click="addtag(tag.value)">
+						<el-tag v-for="tag in dynamicTags" :key="tag.id" :disable-transitions="false" @close="handleClose(tag)" @click="addtag(tag.value)">
 							{{tag.value}}
 						</el-tag>
 					</div>
@@ -336,7 +336,11 @@
 				
 				editPriceVisible: false,
 				delPriceVisible:false,
-				datelist: [],
+				thumbnailPicdatelist:[],
+				introducePicdatelist:[],
+				introducedatelist:[],
+				ruleIntroductiondatelist:[],
+				
 				disabled: false,
 
 				active: 0,
@@ -580,6 +584,7 @@
 			//追加tag
 			addtag(tag) {
 				if (this.tags.indexOf(tag) < 0) {
+					alert(this.tags);
 					this.tags.splice(0, 0, tag);
 				}
 			},
@@ -673,6 +678,10 @@
 			//点击添加框
 			add() {
 				//清空数据
+				this.thumbnailPicdatelist = [];
+				this.introducePicdatelist = [];
+				this.introducedatelist = [];
+				this.ruleIntroductiondatelist = [];
 				this.form = {};
 				this.active = 0;
 				this.tags = [];
@@ -862,6 +871,14 @@
 			//定位修改的元素
 			handleEdit(index, row) {
 				this.form = {};
+				this.thumbnailPicdatelist = [];
+				this.thumbnailPicdatelist.push({name:row.thumbnailPic,url:row.thumbnailPic});
+				this.introducePicdatelist = [];
+				this.introducePicdatelist.push({name:row.introducePic,url:row.introducePic});
+				this.introducedatelist = [];
+				this.introducedatelist.push({name:row.introduce,url:row.introduce});
+				this.ruleIntroductiondatelist = [];
+				this.ruleIntroductiondatelist.push({name:row.ruleIntroduction,url:row.ruleIntroduction});
 				this.active = 0;
 				this.tags = [];
 				this.show = false;

@@ -18,28 +18,28 @@
 				<el-table-column :show-overflow-tooltip="true" width="140" prop="coachName" label="教练名称"></el-table-column>
 				<el-table-column :show-overflow-tooltip="true" width="130" prop="headPic" label="教练头像">
 					<template slot-scope="scope">
-						<img :src="scope.row.headPic" width="100" height="100" />
+						<img :src="scope.row.headPic" width="50" height="50" />
 					</template>
 				</el-table-column>
-				<el-table-column :show-overflow-tooltip="true" width="100" prop="introduce" label="教练简介"></el-table-column>
-				<el-table-column :show-overflow-tooltip="true" width="100" prop="number" label="身份证号"></el-table-column>
-				<el-table-column :show-overflow-tooltip="true" width="100" prop="phone" label="手机号"></el-table-column>
+				<el-table-column :show-overflow-tooltip="true" width="180" prop="introduce" label="教练简介"></el-table-column>
+				<el-table-column :show-overflow-tooltip="true" width="180" prop="number" label="身份证号"></el-table-column>
+				<el-table-column :show-overflow-tooltip="true" width="150" prop="phone" label="手机号"></el-table-column>
 				<el-table-column :show-overflow-tooltip="true" width="100" prop="wechat" label="微信号"></el-table-column>
 				<el-table-column :show-overflow-tooltip="true" width="100" prop="wechatId" label="微信id"></el-table-column>
 				<el-table-column :show-overflow-tooltip="true" width="100" prop="level" label="等级"></el-table-column>
-				<el-table-column :show-overflow-tooltip="true" width="100" prop="teachingTypes" label="可授课种类"></el-table-column>
+				<el-table-column :show-overflow-tooltip="true" width="200" prop="teachingTypes" label="可授课种类"></el-table-column>
 				<el-table-column :show-overflow-tooltip="true" width="130" prop="idCardPicPositive" label="身份证正面">
 					<template slot-scope="scope">
-						<img :src="scope.row.idCardPicPositive" width="100" height="100" />
+						<img :src="scope.row.idCardPicPositive" width="100" height="50" />
 					</template>
 				</el-table-column>
 				<el-table-column :show-overflow-tooltip="true" width="130" prop="idCardPicReverse" label="身份证反面">
 					<template slot-scope="scope">
-						<img :src="scope.row.idCardPicReverse" width="100" height="100" />
+						<img :src="scope.row.idCardPicReverse" width="100" height="50" />
 					</template>
 				</el-table-column>
-				<el-table-column :show-overflow-tooltip="true" width="100" prop="createTime" label="创建时间" :formatter="formatDate"></el-table-column>
-				<el-table-column :show-overflow-tooltip="true" width="100" prop="updateTime" label="修改时间" :formatter="formatupDate"></el-table-column>
+				<el-table-column :show-overflow-tooltip="true" width="180" prop="createTime" label="创建时间" :formatter="formatDate"></el-table-column>
+				<el-table-column :show-overflow-tooltip="true" width="180" prop="updateTime" label="修改时间" :formatter="formatupDate"></el-table-column>
 				<el-table-column fixed="right" label="操作" width="150" align="center">
 					<template slot-scope="scope">
 						<!-- <el-button type="text" icon="el-icon-s-claim" @click="handleHour(scope.$index, scope.row)">查询课时</el-button> -->
@@ -102,7 +102,7 @@
 				<div class="grid-content bg-purple">
 					<el-form-item label-width="100px" label="头像" prop="headPic" :rules="[{ required: true, message: '该项不能为空', trigger: 'blur' }]">
 						<upload class="upload" drag="true" idName="dateId" :onUpLoadSuccess="imgsuccess1" :onUpLoadRemove="imgRemove1"
-						 :onUpLoadError="onUpLoadError" :multiple="true" :drag="true" :show-file-list="true" accept="image/*" :fileList="datelist"
+						 :onUpLoadError="onUpLoadError" :multiple="true" :drag="true" :show-file-list="true" accept="image/*" :fileList="headPicdatalist"
 						 :filesNumber="1">
 						</upload>
 					</el-form-item>
@@ -124,7 +124,7 @@
 				<div class="grid-content bg-purple">
 					<el-form-item label-width="100px" label="身份证正面" prop="idCardPicPositive" :rules="[{ required: true, message: '该项不能为空', trigger: 'blur' }]">
 						<upload class="upload" drag="true" idName="dateId" :onUpLoadSuccess="imgsuccess2" :onUpLoadRemove="imgRemove2"
-						 :onUpLoadError="onUpLoadError" :multiple="true" :drag="true" :show-file-list="true" accept="image/*" :fileList="datelist"
+						 :onUpLoadError="onUpLoadError" :multiple="true" :drag="true" :show-file-list="true" accept="image/*" :fileList="idCardPicPositivedatelist"
 						 :filesNumber="1">
 						</upload>
 					</el-form-item>
@@ -132,7 +132,7 @@
 				<div class="grid-content bg-purple-light">
 					<el-form-item label-width="100px" label="身份证反面" prop="idCardPicReverse" :rules="[{ required: true, message: '该项不能为空', trigger: 'blur' }]">
 						<upload class="upload" drag="true" idName="dateId" :onUpLoadSuccess="imgsuccess3" :onUpLoadRemove="imgRemove3"
-						 :onUpLoadError="onUpLoadError" :multiple="true" :drag="true" :show-file-list="true" accept="image/*" :fileList="datelist"
+						 :onUpLoadError="onUpLoadError" :multiple="true" :drag="true" :show-file-list="true" accept="image/*" :fileList="idCardPicReversedatelist"
 						 :filesNumber="1">
 						</upload>
 					</el-form-item>
@@ -197,7 +197,12 @@
 				// 默认每页显示的条数（可修改）
 				PageSize: 10,
 				delVisible: false,
-				datelist: [],
+				headPicdatalist: [],
+				idCardPicPositivedatelist:[],
+				idCardPicReversedatelist: [],
+				
+				
+				
 				//删除课时框体状态
 				delHourVisible: false,
 				//新增\修改课时窗体状态
@@ -285,6 +290,9 @@
 			//控制打开添加框
 			addCoach() {
 				this.form = {};
+				this.headPicdatalist = [];
+				this.idCardPicPositivedatelist = [];
+				this.idCardPicReversedatelist = [];
 				this.editCoachVisible = true;
 			},
 			//添加或删除方法
@@ -344,6 +352,19 @@
 			//控制定位修改框
 			handleEdit(index, row) {
 				this.form = row;
+			/* 	headPicdatalist: [],
+								idCardPicPositivedatelist:[],
+								idCardPicReversedatelist: [], */
+				
+				
+				this.headPicdatalist=[];
+				this.headPicdatalist.push({name:row.headPic,url:row.headPic});
+				
+				this.idCardPicPositivedatelist = [];
+				this.idCardPicPositivedatelist.push({name:row.idCardPicPositive,url:row.idCardPicPositive});
+				
+				this.idCardPicReversedatelist = [];
+				this.idCardPicReversedatelist.push({name:row.idCardPicReverse,url:row.idCardPicReverse});
 				this.idx = index;
 				this.editCoachVisible = true;
 			},
@@ -390,9 +411,6 @@
 			},
 			search() {
 				this.getData();
-			},
-			searchHour() {
-				
 			},
 
 
