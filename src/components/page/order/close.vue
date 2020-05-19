@@ -1,0 +1,325 @@
+<template>
+	<div class="table">
+		<div class="crumbs">
+			<el-breadcrumb separator="/">
+				<el-breadcrumb-item><i class="el-icon-lx-cascades">结算订单</i></el-breadcrumb-item>
+			</el-breadcrumb>
+		</div>
+		<div class="container">
+			<div class="handle-box">
+				<el-input v-model="coachNameData" placeholder="教练姓名" class="handle-input mr10"></el-input>
+				<el-input v-model="coachPhoneData" placeholder="教练手机号码" class="handle-input mr10"></el-input>
+				<el-date-picker :editable="false" v-model="timeData" type="datetimerange" range-separator="至" start-placeholder="开始日期"
+				 end-placeholder="结束日期">
+				</el-date-picker>
+				<template>
+					<el-select v-model="coachSettlementStatusData" placeholder="请选择">
+						<el-option v-for="item in coachSettlementStatusOptions" :key="item.id" :label="item.label" :value="item.value"></el-option>
+					</el-select>
+				</template>
+				<template>
+					<el-select v-model="isCoachSettlementData" placeholder="请选择">
+						<el-option v-for="item in isCoachSettlementOptions" :key="item.id" :label="item.label" :value="item.value"></el-option>
+					</el-select>
+				</template>
+				<template>
+					<el-select v-model="orderStatusData" placeholder="请选择">
+						<el-option v-for="item in orderStatusOptions" :key="item.id" :label="item.label" :value="item.value"></el-option>
+					</el-select>
+				</template>
+
+
+				<el-button type="primary" icon="search" @click="search">搜索</el-button>
+				<el-button type="primary" icon="add" @click="reset">重置</el-button>
+			</div>
+			<!-- 信息展示 -->
+			<el-table :data="tableData" border class="table" ref="multipleTable"
+			 v-loading="$store.state.requestLoading">
+				<template slot-scope="scope">
+					<el-table-column :show-overflow-tooltip="true" type="index" label="序号" align="center" sortable width="50"></el-table-column>
+					<el-table-column :show-overflow-tooltip="true" width="100" prop="coachName" label="教练姓名"></el-table-column>
+					<el-table-column :show-overflow-tooltip="true" width="100" prop="coachSettlementStatus" label="教练结算状态"></el-table-column>
+					<el-table-column :show-overflow-tooltip="true" width="100" prop="isCoachSettlement" label="是否给教练结算"></el-table-column>
+					<el-table-column :show-overflow-tooltip="true" width="140" prop="phone" label="手机号码"></el-table-column>
+					<el-table-column :show-overflow-tooltip="true" width="100" prop="attendTime" label="上课时间"></el-table-column>
+					<el-table-column :show-overflow-tooltip="true" width="100" prop="finishTime" label="下课时间" ></el-table-column>
+					<el-table-column :show-overflow-tooltip="true" width="100" prop="courseName" label="课程名称"></el-table-column>
+					<el-table-column :show-overflow-tooltip="true" width="100" prop="orderNumber" label="订单号"></el-table-column>
+					<el-table-column :show-overflow-tooltip="true" width="100" prop="campName" label="营名称"></el-table-column>
+					<el-table-column :show-overflow-tooltip="true" width="100" prop="isOpen" label="是否开课"></el-table-column>
+					<el-table-column :show-overflow-tooltip="true" width="100" prop="createTime" label="下单时间" ></el-table-column>
+					<el-table-column :show-overflow-tooltip="true" width="100" prop="orderStatus" label="订单状态"></el-table-column>
+					<el-table-column :show-overflow-tooltip="true" width="100" prop="realPrice" label="实际支付"></el-table-column>
+					<el-table-column :show-overflow-tooltip="true" width="100" prop="orderRemark" label="订单备注"></el-table-column>
+					<el-table-column :show-overflow-tooltip="true" width="100" prop="userContactPhone" label="用户联系电话"></el-table-column>
+					<el-table-column :show-overflow-tooltip="true" width="100" prop="userContactName" label="用户名称"></el-table-column>
+					<el-table-column :show-overflow-tooltip="true" width="100" prop="studentName" label="学员名称"></el-table-column>
+					<el-table-column :show-overflow-tooltip="true" width="100" prop="detailedAddress" label="地址"></el-table-column>
+					<el-table-column :show-overflow-tooltip="true" width="100" prop="classNumberName" label="课时名称"></el-table-column>
+					<el-table-column :show-overflow-tooltip="true" width="100" prop="price" label="课时价格"></el-table-column>
+					<el-table-column :show-overflow-tooltip="true" width="100" prop="attendStatus" label="上课状态"></el-table-column>
+					<el-table-column :show-overflow-tooltip="true" width="100" prop="orderChildRemark" label="子订单备注"></el-table-column>
+				</template>
+			</el-table>
+			<div class="pagination">
+				<el-pagination @size-change="handleSizeChange" @current-change="handleCurrentChange" :current-page="currentPage"
+				 :page-sizes="pageSizes" :page-size="PageSize" layout="total, sizes, prev, pager, next, jumper" :total="totalCount"></el-pagination>
+			</div>
+		</div>
+	</div>
+</template>
+<script>
+	import menu from '../../common/menu';
+
+	export default {
+		name: 'course',
+		data() {
+			return {
+				coachSettlementStatusOptions: [{
+					value: '',
+					label: '全部'
+				}, {
+					value: 'yes',
+					label: '已结算'
+				}, {
+					value: 'no',
+					label: '未结算'
+				}],
+				isCoachSettlementOptions: [{
+					value: '',
+					label: '全部'
+				}, {
+					value: 'yes',
+					label: '需要'
+				}, {
+					value: 'no',
+					label: '不需要'
+				}],
+				orderStatusOptions: [{
+					value: '',
+					label: '全部'
+				}, {
+					value: 'notpay',
+					label: '未付款'
+				}, {
+					value: 'spell',
+					label: '拼单中'
+				}, {
+					value: 'attend',
+					label: '上课中'
+				}, {
+					value: 'complete',
+					label: '已完成'
+				}, {
+					value: 'cancel',
+					label: '已取消'
+				}],
+
+				coachPhoneData: '',
+				timeData: [],
+				isCoachSettlementData: '',
+				orderStatusData: '',
+				coachNameData: '',
+				coachSettlementStatusData: '',
+
+				// 总数据
+				tableData: [],
+				// 默认显示第几页
+				currentPage: 1,
+				// 总条数，根据接口获取数据长度(注意：这里不能为空)
+				totalCount: 0,
+				// 个数选择器（可修改）
+				pageSizes: [10, 20, 50, 100],
+				// 默认每页显示的条数（可修改）
+				PageSize: 10,
+
+
+				//辅助元素定位
+				idx: -1,
+				show: '',
+				//提交表单
+				form: {},
+				count: 0,
+
+			};
+		},
+		
+		beforeCreate: function() {
+			function formatDate(time) {
+				let rtime = new Date(time);
+				return rtime.getFullYear() + '-' + (rtime.getMonth() + 1) + '-' + rtime.getDate() + " " + rtime.getHours() + ":" + rtime
+					.getMinutes() + ":" + rtime.getSeconds();
+			}
+			
+		},
+		created() {
+			
+			this.getData();
+			
+		},
+		computed: {
+			
+			data() {
+				return this.tableData;
+			},
+			total() {
+				return this.count;
+			}
+		},
+		methods: {
+			
+			
+			reset() {
+				this.coachPhoneData = "";
+				this.timeData = [];
+				this.isCoachSettlementData = '';
+				this.orderStatusData = '';
+				this.coachNameData = '';
+				this.coachSettlementStatusData = '';
+			},
+			// 获取 easy-mock 的模拟数据
+			getData() {
+				// 开发环境使用 easy-mock 数据，正式环境使用 json 文件
+				this.$axios
+					.post('/coach/queryCoachInfo', {
+						pageNo: this.currentPage,
+						pageSize: this.PageSize,
+						coachId: '',
+						phone: '',
+						attendTime: '',
+						finishTime: '',
+						isCoachSettlement: '',
+						orderStatus: '',
+						coachName: '',
+						coachSettlementStatus: '',
+						
+					})
+					.then(res => {
+						this.tableData = res.data.records;
+						this.totalCount = res.data.total;
+					});
+			},
+			search() {
+				this.getData();
+			},
+
+
+
+			showInput() {
+				this.inputVisible = true;
+				this.$nextTick(_ => {
+					this.$refs.saveTagInput.$refs.input.focus();
+				});
+			},
+
+			handleInputConfirm() {
+				let inputValue = this.inputValue;
+				if (inputValue) {
+					this.dynamicTags.push(inputValue);
+				}
+				this.inputVisible = false;
+				this.inputValue = '';
+			},
+
+			// 每页显示的条数
+			handleSizeChange(val) {
+				// 改变每页显示的条数
+				this.PageSize = val;
+				// 点击每页显示的条数时，显示第一页
+				this.getData(val, 1);
+				// 注意：在改变每页显示的条数时，要将页码显示到第一页
+				this.currentPage = 1;
+			},
+			// 显示第几页
+			handleCurrentChange(val) {
+				// 改变默认的页数
+				this.currentPage = val;
+				// 切换页码时，要获取每页显示的条数
+				this.getData(this.PageSize, val * this.pageSize);
+			},
+			formatupDate(row) {
+				let time = new Date(row.updateTime);
+				return time.getFullYear() + '-' + (time.getMonth() + 1) + '-' + time.getDate() + " " + time.getHours() + ":" + time
+					.getMinutes() + ":" + time.getSeconds();
+			},
+		}
+	};
+</script>
+
+<style scoped>
+	.handle-box {
+		margin-bottom: 20px;
+	}
+
+	.handle-select {
+		width: 120px;
+	}
+
+	.handle-input {
+		width: 100px;
+		display: inline-block;
+	}
+
+	.del-dialog-cnt {
+		font-size: 16px;
+		text-align: center;
+	}
+
+	.table {
+		width: 100%;
+		font-size: 14px;
+	}
+
+	.red {
+		color: #ff0000;
+	}
+
+	.mr10 {
+		margin-right: 10px;
+	}
+
+	.avatar-uploader .el-upload {
+		border: 1px dashed #d9d9d9;
+		border-radius: 6px;
+		cursor: pointer;
+		position: relative;
+		overflow: hidden;
+	}
+
+	.avatar-uploader .el-upload:hover {
+		border-color: #409eff;
+	}
+
+	.avatar-uploader-icon {
+		font-size: 28px;
+		color: #8c939d;
+		width: 178px;
+		height: 178px;
+		line-height: 178px;
+		text-align: center;
+	}
+
+	.avatar {
+		width: 178px;
+		height: 178px;
+		display: block;
+	}
+
+	.el-tag+.el-tag {
+		margin-left: 10px;
+	}
+
+	.button-new-tag {
+		margin-left: 10px;
+		height: 32px;
+		line-height: 30px;
+		padding-top: 0;
+		padding-bottom: 0;
+	}
+
+	.input-new-tag {
+		width: 90px;
+		margin-left: 10px;
+		vertical-align: bottom;
+	}
+</style>

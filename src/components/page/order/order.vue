@@ -7,11 +7,22 @@
 		</div>
 		<div class="container">
 			<div class="handle-box">
+				<el-input v-model="orderNumberTitle" placeholder="订单号码" class="handle-input mr10"></el-input>
+				<template>
+					<el-select v-model="classOrderStatus" placeholder="请选择">
+						<el-option v-for="item in classOrderOptions" :key="item.id" :label="item.label" :value="item.value"></el-option>
+					</el-select>
+				</template>
+				<el-date-picker :editable="false" v-model="selectTimeData" type="datetimerange" range-separator="至"
+				 start-placeholder="开始日期" end-placeholder="结束日期">
+				</el-date-picker>
 				<el-button type="primary" icon="search" @click="search">搜索</el-button>
+				<el-button type="primary" icon="search" @click="reset">重置</el-button>
+				<a :href="Rurl" @click="outputData">
+					<el-button type="primary" icon="search">导出报表</el-button>
+				</a>
 			</div>
 			<!-- 信息展示 -->
-
-
 			<el-table :data="tableData" style="width: 100%" :row-key="getRowKeys" :expand-row-keys="expands" @expand-change="exChange">
 				<el-table-column type="expand">
 					<template slot-scope="props">
@@ -21,7 +32,7 @@
 							<el-table-column prop="finishTime" label="下课时间" :formatter="formatChildrenFinishTimeDate"></el-table-column>
 							<el-table-column prop="price" label="价格"></el-table-column>
 							<el-table-column prop="attendStatus" label="上课状态"></el-table-column>
-							<el-table-column prop="signStatus" label="签到状态"></el-table-column>
+							<el-table-column prop="signStatus" label="签到状态" :formatter="formatSignStatusDate"></el-table-column>
 							<el-table-column prop="isCoachSettlement" label="是否需要给教练结算"></el-table-column>
 							<el-table-column prop="remark" label="备注"></el-table-column>
 							<el-table-column prop="scoreTime" label="评分时间" :formatter="formatChildrenScoreTimeDate"></el-table-column>
@@ -43,7 +54,7 @@
 				<el-table-column :show-overflow-tooltip="true" width="140" prop="courseName" label="课程名称"></el-table-column>
 				<el-table-column :show-overflow-tooltip="true" width="100" prop="name" label="用户名称"></el-table-column>
 				<el-table-column width="120" height="100" prop="headPic" label="用户头像(发起人)">
-					<template scope="scope">
+					<template slot-scope="scope">
 						<img :src="scope.row.headPic" width="100" height="100" />
 					</template>
 				</el-table-column>
@@ -59,6 +70,7 @@
 				<el-table-column :show-overflow-tooltip="true" width="100" prop="orderStatus" label="订单状态" :formatter="formatOrderStatusDate"></el-table-column>
 				<el-table-column :show-overflow-tooltip="true" width="130" prop="teamName" label="团队名称"></el-table-column>
 				<el-table-column :show-overflow-tooltip="true" width="120" prop="closeTime" label="拼单结束日期" :formatter="formatCloseTimeDate"></el-table-column>
+				<el-table-column :show-overflow-tooltip="true" width="130" prop="createTime" label="下单时间" :formatter="formatCreateTimeDate"></el-table-column>
 			</el-table>
 			<div class="pagination">
 				<el-pagination @size-change="handleSizeChange" @current-change="handleCurrentChange" :current-page="currentPage"
@@ -81,11 +93,13 @@
 		<el-dialog title="修改上课时间" :visible.sync="TimeVisible" width="60%" :close-on-click-modal="closeOnClickModal">
 			<el-form ref="timeform" :model="form" label-width="50px" :rules="rules">
 				<div class="block" align="center">
-					<span class="demonstration">请选择推迟后的上课时间及下课时间(上课时间不可晚于下课时间)</span>
-					<br />
-					<el-date-picker :editable="false" v-model="changeTimeData" type="datetimerange" range-separator="至"
-					 start-placeholder="开始日期" end-placeholder="结束日期">
-					</el-date-picker>
+					<el-form-item label-width="100px" label="选择时间" prop="attendTime">
+						<span class="demonstration">请选择推迟后的上课时间及下课时间(上课时间不可晚于下课时间)</span>
+						<br />
+						<el-date-picker :editable="false" v-model="changeTimeData" type="datetimerange" range-separator="至"
+						 start-placeholder="开始日期" end-placeholder="结束日期">
+						</el-date-picker>
+					</el-form-item>
 				</div>
 			</el-form>
 			<span slot="footer" class="dialog-footer">
@@ -106,6 +120,31 @@
 			return {
 				loading: true,
 
+				orderNumberTitle: "",
+
+				classOrderStatus: "全部",
+				classOrderOptions: [{
+					value: '',
+					label: '全部'
+				}, {
+					value: 'notpay',
+					label: '未付款'
+				}, {
+					value: 'spell',
+					label: '拼单中'
+				}, {
+					value: 'attend',
+					label: '上课中'
+				}, {
+					value: 'complete',
+					label: '已完成'
+				}, {
+					value: 'cancel',
+					label: '已取消'
+				}],
+
+				selectTimeData: [],
+				Rurl: "",
 				// 总数据
 				tableData: [],
 				childrenTableData: [],
@@ -150,7 +189,7 @@
 					attendTime: [{
 						required: true,
 						message: '该项不能为空',
-						trigger: 'blur'
+						trigger: 'change'
 					}],
 				},
 
@@ -160,6 +199,33 @@
 				},
 
 			};
+		},
+		watch: {
+			selectTimeData(newName, oldName) {
+				var sTime = this.selectTimeData[0];
+				var eTime = this.selectTimeData[1];
+				var strOrder = "";
+				var strSTime = "";
+				var strETime = "";
+				this.classOrderStatus == "全部" ? strOrder = "" : strOrder = this.classOrderStatus
+				
+				if (this.selectTimeData == 0 || this.selectTimeData == null || this.selectTimeData == "") {
+					strSTime = "";
+					strETime = "";
+				} else {
+					strSTime = sTime.getFullYear() + '/' + (sTime.getMonth() + 1) + '/' + sTime.getDate() + " " +
+						sTime.getHours() +
+						":" + sTime
+						.getMinutes() + ":" + sTime.getSeconds();
+				
+					strETime = eTime.getFullYear() + '/' + (eTime.getMonth() + 1) + '/' + eTime.getDate() + " " +
+						eTime.getHours() +
+						":" + eTime
+						.getMinutes() + ":" + eTime.getSeconds();
+						
+					this.Rurl = "/export/order?startDate=" + strSTime + "&endDate=" + strETime + "&strOrder=" + strOrder;
+				}
+			}
 		},
 
 		created() {
@@ -184,7 +250,6 @@
 						that.expands.push(row.id) // 只展开当前行id
 					}
 					this.getChildenData(row.id);
-					//  this.tablaData(row.eqId)  这里可以调用接口数据渲染
 				} else { // 说明收起了
 					that.expands = [];
 					this.loading = false;
@@ -203,6 +268,11 @@
 			},
 			formatCloseTimeDate(row) {
 				let time = new Date(row.closeTime);
+				return time.getFullYear() + '-' + (time.getMonth() + 1) + '-' + time.getDate() + " " + time.getHours() + ":" + time
+					.getMinutes() + ":" + time.getSeconds();
+			},
+			formatCreateTimeDate(row) {
+				let time = new Date(row.createTime);
 				return time.getFullYear() + '-' + (time.getMonth() + 1) + '-' + time.getDate() + " " + time.getHours() + ":" + time
 					.getMinutes() + ":" + time.getSeconds();
 			},
@@ -251,11 +321,6 @@
 
 			// 获取 easy-mock 的模拟数据
 			getData() {
-				// 开发环境使用 easy-mock 数据，正式环境使用 json 文件
-				/* var fd = {
-					pageNo: this.currentPage,
-					pageSize: this.PageSize
-				} */
 				this.loading = true;
 				/* this.$axios
 					.post('/order/getOrderList', {
@@ -263,19 +328,41 @@
 					}).then(res => {
 						this.tableData = res.data.records;
 						this.totalCount = res.data.total;
-						this.loading = false; */
+						this.loading = false; 
+						30178
+						*/
+				var sTime = this.selectTimeData[0];
+				var eTime = this.selectTimeData[1];
+				var strOrder = "";
+				var strSTime = "";
+				var strETime = "";
+				this.classOrderStatus == "全部" ? strOrder = "" : strOrder = this.classOrderStatus
 
+				if (this.selectTimeData == 0 || this.selectTimeData == null || this.selectTimeData == "") {
+					strSTime = "";
+					strETime = "";
+				} else {
+					strSTime = sTime.getFullYear() + '/' + (sTime.getMonth() + 1) + '/' + sTime.getDate() + " " +
+						sTime.getHours() +
+						":" + sTime
+						.getMinutes() + ":" + sTime.getSeconds();
+
+					strETime = eTime.getFullYear() + '/' + (eTime.getMonth() + 1) + '/' + eTime.getDate() + " " +
+						eTime.getHours() +
+						":" + eTime
+						.getMinutes() + ":" + eTime.getSeconds();
+				}
 				this.$axios({
 					url: '/order/getOrderList',
 					method: 'post',
 					data: {
 						pageNo: this.currentPage,
-						pageSize: this.PageSize
+						pageSize: this.PageSize,
+						orderNumber: this.orderNumberTitle,
+						orderStatus: strOrder,
+						startTime: strSTime,
+						endTime: strETime
 					}
-					/* ,
-										headers: {
-											'Content-Type': 'application/json;charset=UTF-8'
-										} */
 				}).then(res => {
 					this.tableData = res.data.records;
 					this.totalCount = res.data.total;
@@ -300,6 +387,17 @@
 				this.getData();
 			},
 
+			reset() {
+				this.orderNumberTitle = "";
+				this.classOrderStatus = "";
+				this.selectTimeData = [];
+				this.getData();
+			},
+
+			outputData() {
+				
+			},
+
 			formatOrderStatusDate(row) {
 				switch (row.orderStatus) {
 					case "notpay":
@@ -312,6 +410,14 @@
 						return "已完成";
 					case "cancel":
 						return "已取消";
+				}
+			},
+			formatSignStatusDate(row) {
+				switch (row.signStatus) {
+					case "no":
+						return "未签到";
+					case "yes":
+						return "已签到";
 				}
 			},
 
@@ -331,15 +437,38 @@
 			},
 
 			changeTime() {
+				if (this.changeTimeData == 0 || this.changeTimeData == null || this.changeTimeData == "") {
+					this.$message("日期时间不允许为空");
+					return;
+				}
 				var attendTime = this.changeTimeData[0];
 				var finishTime = this.changeTimeData[1];
 
-				/* time.getFullYear() + '/' + (time.getMonth() + 1) + '/' + time.getDate() + " " + time.getHours() + ":" + time
-					.getMinutes() + ":" + time.getSeconds() */
-				/* var timeData = {
-					id : this.form.id;
-					attendTime :
-				} */
+				var strAttendTime = attendTime.getFullYear() + '/' + (attendTime.getMonth() + 1) + '/' + attendTime.getDate() + " " +
+					attendTime.getHours() +
+					":" + attendTime
+					.getMinutes() + ":" + attendTime.getSeconds();
+				var strFinishTime = finishTime.getFullYear() + '/' + (finishTime.getMonth() + 1) + '/' + finishTime.getDate() + " " +
+					finishTime.getHours() +
+					":" + finishTime
+					.getMinutes() + ":" + finishTime.getSeconds();
+
+				var cTimeData = {
+					id: this.form.id,
+					attendTime: strAttendTime,
+					finishTime: strFinishTime
+				}
+				this.$axios.post('/order/updateOrderChild', cTimeData).then(res => {
+					if (!res.success) {
+						this.$message.success(res.errMsg);
+						return;
+					}
+					this.$message.success(`修改成功`);
+					this.getChildenData(this.form.orderId);
+					this.form = {};
+					this.TimeVisible = false;
+				});
+
 			},
 
 			//确定修改分数

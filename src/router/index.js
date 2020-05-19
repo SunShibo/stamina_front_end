@@ -5,9 +5,9 @@ Vue.use(Router);
 
 export default new Router({
 	routes: [{
-			path: '/',
-			redirect: '/login'
-		},
+		path: '/',
+		redirect: '/login'
+	},
 		{
 			path: '/home',
 			name: 'home',
@@ -17,15 +17,15 @@ export default new Router({
 				title: '首页'
 			},
 			children: [{
-					path: '/home/statistics',
-					name: 'statistics',
-					component: resolve => require(['../components/page/system/admin.vue'], resolve),
-					meta: {
-						title: '数据统计',
-						permission: true,
-						index: 'statistics'
-					}
-				},
+				path: '/home/statistics',
+				name: 'statistics',
+				component: resolve => require(['../components/page/system/admin.vue'], resolve),
+				meta: {
+					title: '数据统计',
+					permission: true,
+					index: 'statistics'
+				}
+			},
 				{
 					path: '/home/admin',
 					name: 'admin',
@@ -49,7 +49,7 @@ export default new Router({
 				{
 					path: '/home/user',
 					name: 'user',
-					component: resolve => require(['../components/page/user/user.vue'], resolve),
+					component: resolve => require(['../components/page/system/admin.vue'], resolve),
 					meta: {
 						title: '用户管理',
 						permission: true,
@@ -76,6 +76,18 @@ export default new Router({
 						index: 'order'
 					}
 				},
+				{
+					path: '/home/close',
+					name: 'close',
+					component: resolve => require(['../components/page/order/close.vue'], resolve),
+					meta: {
+						title: '结算订单',
+						permission: true,
+						index: 'close'
+					}
+				},
+
+
 				{
 					path: '/home/coach',
 					name: 'coach',
