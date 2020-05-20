@@ -19,7 +19,7 @@
 				<el-button type="primary" icon="search" @click="search">搜索</el-button>
 				<el-button type="primary" icon="search" @click="reset">重置</el-button>
 				<a :href="Rurl" >
-					<el-button type="primary" icon="search">导出报表</el-button>
+					<el-button type="primary" icon="search" @click="outputExamine">导出报表</el-button>
 				</a>
 			</div>
 			<!-- 信息展示 -->
@@ -40,6 +40,7 @@
 							<el-table-column prop="createTime" label="创建时间" :formatter="formatChildrenCreateTimeDate"></el-table-column>
 							<el-table-column fixed="right" header-align="center" align="center" width="160" label="操作">
 								<template slot-scope="scp">
+									<el-button type="text" icon="el-icon-s-order" @click="handleRemark(scp.$index, scp.row)">修改备注</el-button>
 									<el-button type="text" icon="el-icon-s-order" @click="handleScore(scp.$index, scp.row)">评分</el-button>
 									<el-button type="text" icon="el-icon-s-order" @click="handleTime(scp.$index, scp.row)">修改上课时间</el-button>
 								</template>
@@ -53,9 +54,9 @@
 				<el-table-column :show-overflow-tooltip="true" width="200" prop="orderNumber" label="订单号"></el-table-column>
 				<el-table-column :show-overflow-tooltip="true" width="140" prop="courseName" label="课程名称"></el-table-column>
 				<el-table-column :show-overflow-tooltip="true" width="100" prop="name" label="用户名称"></el-table-column>
-				<el-table-column width="120" height="100" prop="headPic" label="用户头像(发起人)">
+				<el-table-column width="120" height="60" prop="headPic" label="课程缩略图">
 					<template slot-scope="scope">
-						<img :src="scope.row.headPic" width="100" height="100" />
+						<img :src="scope.row.thumbnailPic" width="50" height="50" />
 					</template>
 				</el-table-column>
 				<el-table-column :show-overflow-tooltip="true" width="280" prop="detailedAddress" label="详细地址"></el-table-column>
@@ -107,6 +108,21 @@
 				<el-button @click="TimeVisible = false">取 消</el-button>
 			</span>
 		</el-dialog>
+		
+		<!-- 修改子订单备注弹出框 -->
+		<el-dialog title="修改备注" :visible.sync="RemarkVisible" width="60%" :close-on-click-modal="closeOnClickModal">
+			<el-form ref="remarkform" :model="form" label-width="50px" :rules="rules">
+				<div class="block" align="center">
+					<el-form-item label-width="100px" label="输入备注" prop="remark">
+						<el-input v-model="form.remark"></el-input>
+					</el-form-item>
+				</div>
+			</el-form>
+			<span slot="footer" class="dialog-footer">
+				<el-button type="primary" :loading="$store.state.requestLoading" @click="changeRemark()">确 定</el-button>
+				<el-button @click="RemarkVisible = false">取 消</el-button>
+			</span>
+		</el-dialog>
 	</div>
 </template>
 
@@ -121,6 +137,8 @@
 				loading: true,
 
 				orderNumberTitle: "",
+				
+				RemarkVisible: false,
 
 				classOrderStatus: "全部",
 				classOrderOptions: [{
@@ -212,6 +230,7 @@
 				if (this.selectTimeData == 0 || this.selectTimeData == null || this.selectTimeData == "") {
 					strSTime = "";
 					strETime = "";
+					this.$message.error("请选择时间");
 				} else {
 					strSTime = sTime.getFullYear() + '/' + (sTime.getMonth() + 1) + '/' + sTime.getDate() + " " +
 						sTime.getHours() +
@@ -240,6 +259,32 @@
 			}
 		},
 		methods: {
+			outputExamine(){
+				if (this.selectTimeData == 0 || this.selectTimeData == null || this.selectTimeData == "") {
+					this.$message.error("请选择时间");
+				}
+			},
+			
+			changeRemark(){
+				var remarkForm = this.form;
+				this.form = {
+					id: remarkForm.id,
+					remark: remarkForm.remark
+				};
+				this.loading = true;
+				this.$axios.post('/order/updateOrderChild', this.form).then(res => {
+					if (!res.success) {
+						this.$message.success(res.errMsg);
+						return;
+					}
+					this.$message.success(`修改成功`);
+					this.getChildenData(this.form.orderId);
+					this.form = {};
+					this.RemarkVisible = false;
+				});
+				this.loading = false;
+			},
+			
 			exChange(row, childrenTableData) {
 				this.loading = true
 
@@ -250,6 +295,7 @@
 						that.expands.push(row.id) // 只展开当前行id
 					}
 					this.getChildenData(row.id);
+					this.loading = false;
 				} else { // 说明收起了
 					that.expands = [];
 					this.loading = false;
@@ -366,6 +412,7 @@
 					this.totalCount = res.data.total;
 					this.loading = false;
 				});
+				this.loading = false;
 
 			},
 			getChildenData(orderId) {
@@ -380,6 +427,7 @@
 					this.childrenTableData = res.data.ordersChildBOS;
 					this.loading = false;
 				});
+				this.loading = false;
 			},
 			search() {
 				this.getData();
@@ -420,6 +468,11 @@
 				this.idx = index;
 				this.ScoreVisible = true;
 			},
+			handleRemark(index, row){
+				this.form = row;
+				this.idx = index;
+				this.ScoreVisible = true;
+			},
 			handleTime(index, row) {
 				this.form = row;
 				this.idx = index;
@@ -452,6 +505,7 @@
 					attendTime: strAttendTime,
 					finishTime: strFinishTime
 				}
+				this.loading = true;
 				this.$axios.post('/order/updateOrderChild', cTimeData).then(res => {
 					if (!res.success) {
 						this.$message.success(res.errMsg);
@@ -462,6 +516,7 @@
 					this.form = {};
 					this.TimeVisible = false;
 				});
+				this.loading = false;
 
 			},
 
@@ -475,6 +530,7 @@
 							id: this.form.id,
 							scoreNumber: this.form.scoreNumber
 						}
+						this.loading = true;
 						this.$axios.post('/orderChild/updateGradeStudent', scoreData).then(res => {
 							if (!res.success) {
 								this.$message.success(res.errMsg);
@@ -485,6 +541,7 @@
 							this.form = {};
 							this.ScoreVisible = false;
 						});
+						this.loading = false;
 					} else {
 						console.error('error submit!!');
 						return false;

@@ -1,5 +1,5 @@
 <template>
-  <div class="table">
+  <div class="table" v-loading="loading">
     <div class="crumbs">
       <el-breadcrumb separator="/">
         <el-breadcrumb-item>
@@ -76,6 +76,7 @@
 
       return {
         // 总数据
+		loading: true,
         tableData:[],
         editVisible:false,
         options: [],
@@ -111,14 +112,19 @@
         return row.status == 'yes' ? '开放' : '禁用';
       },
       getData() {
+		this.loading = true;
+		  
         this.$axios.post("/diction/queryKey").then(res => {
           this.options = res.data;
         });
+		
+		
         this.$axios.post("/diction/queryValue",{
           kId:1
         }).then(res => {
           this.tableData = res.data;
         });
+		this.loading = false;
 
       },
       handleEdit(idex,row) {
@@ -126,11 +132,13 @@
         this.editVisible=true;
       },
       change(){
+		  this.loading = true;
         this.$axios.post("/diction/queryValue",{
           kId:this.select
         }).then(res => {
           this.tableData = res.data;
         });
+		this.loading = false;
       },
       saveEdit(formName) {
         this.$refs.userform.validate(valid => {
@@ -139,6 +147,7 @@
             delete this.form.updateTime;
               let fd = JSON.parse(JSON.stringify(this.form));
               delete fd.id;
+			  this.loading = true;
               this.$axios.post("/diction/addValue", fd).then(res => {
                 if (!res.success) {
                   this.$message.success(res.errMsg);
@@ -148,6 +157,7 @@
                 this.getData();
                 this.editVisible = false;
               });
+			  this.loading = false;
           } else {
             console.error("error submit!!");
             return false;
@@ -160,6 +170,7 @@
           cancelButtonText: '取消',
           type: 'warning'
         }).then(() => {
+			this.loading = true;
           this.$axios({
             url: '/diction/delValue',
             method: 'POST',
@@ -173,6 +184,7 @@
             }
           });
         })
+		this.loading = false;
       },
       dateFormatCreate(time) {
         if (time.createTime != null) {

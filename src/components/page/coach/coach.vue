@@ -1,5 +1,5 @@
 <template>
-	<div class="table">
+	<div class="table" v-loading="loading">
 		<div class="crumbs">
 			<el-breadcrumb separator="/">
 				<el-breadcrumb-item><i class="el-icon-lx-cascades">教练列表</i></el-breadcrumb-item>
@@ -186,6 +186,8 @@
 
 
 			return {
+				loading: true,
+				
 				// 总数据
 				tableData: [],
 				// 默认显示第几页
@@ -303,14 +305,17 @@
 						if (this.form.id == '' || this.form.id == null) {
 							let fd = JSON.parse(JSON.stringify(this.form));
 							delete fd.id;
+							this.loading = true;
 							this.$axios.post('/coach/add', fd).then(res => {
 								if (!res.success) {
 									this.$message.success(res.errMsg);
+									this.loading = false;
 									return;
 								}
 								this.$message.success(`操作成功`);
 								this.getData();
 								this.form = {};
+								this.loading = false;
 								this.editCoachVisible = false;
 							});
 						} else {
@@ -330,15 +335,17 @@
 								idCardPicPositive: coachForm.idCardPicPositive,
 								idCardPicReverse: coachForm.idCardPicReverse
 							};
-
+							this.loading = true;
 							this.$axios.post('/coach/update', this.form).then(res => {
 								if (!res.success) {
 									this.$message.success(res.errMsg);
+									this.loading = false;
 									return;
 								}
 								this.$message.success(`操作成功`);
 								this.form = {};
 								this.getData();
+								this.loading = false;
 								this.editCoachVisible = false;
 							});
 						}
@@ -384,17 +391,20 @@
 			// 确定删除课程
 			deleteRow() {
 				var id = this.form.id;
+				this.loading = true;
 				this.$axios.post('/coach/delete', {
 					id: id
 				}).then(res => {
 					if (!res.success) {
 						this.$message.success(res.errMsg);
+						this.loading = false;
 						return;
 					}
 					this.tableData.splice(this.idx, 1);
 					this.$message.success('删除成功');
 					this.idx = "";
 					this.form = {};
+					this.loading = false;
 					this.delVisible = false;
 				});
 			},

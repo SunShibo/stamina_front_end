@@ -1,5 +1,5 @@
 <template>
-  <div class="table">
+  <div class="table" v-loading="loading">
     <div class="crumbs">
       <el-breadcrumb separator="/">
         <el-breadcrumb-item>
@@ -143,6 +143,8 @@
     name: 'user',
     data() {
       return {
+		 loading: true,
+		  
         address:false,
         addressData:[],
         student:false,
@@ -200,6 +202,7 @@
 
       // 获取 easy-mock 的模拟数据
       getData() {
+		  this.loading = true;
         this.$axios.post("/userInfo/queryUserInfo", {
           pageNo:this.currentPage,
           pageSize:this.PageSize,
@@ -209,6 +212,7 @@
           this.tableData = res.data.records;
           this.totalCount = res.data.total;
         });
+		this.loading = false;
       },
       search() {
         this.getData();
@@ -223,28 +227,34 @@
         return time.getFullYear() + '-' + (time.getMonth() + 1) + '-' + time.getDate() ;
       },
       queryPatriarch(row){
+		  this.loading = true;
         this.$axios.post("/userContact/queryContectByUserId", {
           userId:row.id,
         }).then(res => {
           this.patriarch = res.data;
         });
+		this.loading = false;
         this.visible=true;
       },
       queryStudent(row){
+		  this.loading = true;
         this.$axios.post("/studentBack/query", {
           userId:row.id,
         }).then(res => {
           this.studentData = res.data;
         });
+		this.loading = false;
         this.student=true;
       },
       queryStudent(row){
+		  this.loading = true;
         this.$axios.post("/address/queryAddressByUserId", {
           userId:row.id,
         }).then(res => {
           this.addressData = res.data;
           console.log(res.data);
         });
+		this.loading = false;
         this.address=true;
       },
       addStatus(row){

@@ -7,7 +7,7 @@
                 </el-breadcrumb-item>
             </el-breadcrumb>
         </div>
-        <div class="container">
+        <div class="container" v-loading="loading">
             <el-table
                     v-loading="$store.state.requestLoading"
                     :data="tableData"
@@ -79,6 +79,8 @@
         components: {UpLoad},
         data() {
             return {
+				loading: true,
+				
                 datelist: [],
                 imgVisible: false,
                 tableData: [],
@@ -103,9 +105,11 @@
         methods: {
             // 获取 easy-mock 的模拟数据
             getData() {
+				this.loading = true;
                 this.$axios.post("/syskv/query").then(res => {
                     this.tableData=res.data;
                 });
+				this.loading = false;
             },
             handleEdit(index, row) {
                 this.form = {
@@ -131,6 +135,7 @@
                 }
                 delete this.form.key;
                 let fd = JSON.parse(JSON.stringify(this.form));
+				this.loading = true;
                 this.$axios.post("/syskv/update", fd).then(res => {
                     if (!res.success) {
                         this.$message.success(res.errMsg);
@@ -141,6 +146,7 @@
                     this.editVisible = false;
                     this.imgVisible = false;
                 });
+				this.loading = false;
             },
             imgsuccess3(res, file) {
                 this.form.values = res;

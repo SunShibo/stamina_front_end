@@ -547,6 +547,10 @@
 
 			formatupDate(row) {
 				let time = new Date(row.updateTime);
+				if(time.getFullYear()<2020){
+					time = new Date(row.createTime);
+				}
+				
 				return time.getFullYear() + '-' + (time.getMonth() + 1) + '-' + time.getDate() + " " + time.getHours() + ":" + time
 					.getMinutes() + ":" + time.getSeconds();
 			},
@@ -584,7 +588,6 @@
 			//追加tag
 			addtag(tag) {
 				if (this.tags.indexOf(tag) < 0) {
-					alert(this.tags);
 					this.tags.splice(0, 0, tag);
 				}
 			},
@@ -713,9 +716,11 @@
 							};
 							let fd = JSON.parse(JSON.stringify(this.form));
 							delete fd.id;
+							this.loading = true;
 							this.$axios.post('/price/add', fd).then(res => {
 								if (!res.success) {
 									this.$message.success(res.errMsg);
+									this.loading = false;
 									return;
 								}
 								this.$message.success(`操作成功`);
@@ -723,6 +728,7 @@
 								this.form = {};
 								this.editPriceVisible = false;
 							});
+							this.loading = false;
 						} else {
 							/* 更新 */
 							this.form = {
@@ -734,9 +740,11 @@
 								openNumber: priceitem.openNumber,
 								fullNumber: priceitem.fullNumber
 							};
+							this.loading = true;
 							this.$axios.post('/price/update', this.form).then(res => {
 								if (!res.success) {
 									this.$message.success(res.errMsg);
+									this.loading = false;
 									return;
 								}
 								this.$message.success(`操作成功`);
@@ -744,6 +752,7 @@
 								this.getPriceData(this.priceTableData[0].courseId);
 								this.editPriceVisible = false;
 							});
+							this.loading = false;
 						}
 						this.active = 0;
 					} else {
@@ -766,15 +775,19 @@
 							};
 							let fd = JSON.parse(JSON.stringify(this.form));
 							delete fd.id;
+							this.loading = true;
 							this.$axios.post('/classNumber/add', fd).then(res => {
 								if (!res.success) {
 									this.$message.success(res.errMsg);
+									this.loading = false;
 									return;
 								}
+								
 								this.$message.success(`操作成功`);
 								this.getHoursData(this.form.courseId);
 								this.form = {};
 								this.editHourVisible = false;
+								this.loading = false;
 							});
 						} else {
 							/* 更新 */
@@ -783,15 +796,18 @@
 								className: houritem.className,
 								sort: houritem.sort
 							};
+							this.loading = true;
 							this.$axios.post('/classNumber/update', this.form).then(res => {
 								if (!res.success) {
 									this.$message.success(res.errMsg);
+									this.loading = false;
 									return;
 								}
 								this.$message.success(`操作成功`);
 								this.form = {};
 								this.getHoursData(this.hourTableData[0].courseId);
 								this.editHourVisible = false;
+								this.loading = false;
 							});
 						}
 						this.active = 0;
@@ -806,16 +822,20 @@
 				this.delVisible = true;
 			},
 			getPriceData(cid) {
+				this.loading = true;
 				this.$axios
 					.post('/price/query', {
 						courseId: cid
 					})
 					.then(res => {
 						this.priceTableData = res.data.records;
+						this.loading = false;
 					});
+					this.loading = false;
 			},
 
 			getHoursData(cid) {
+				this.loading = true;
 				this.$axios
 					.post('/classNumber/query', {
 						courseId: cid
@@ -825,6 +845,7 @@
 						this.Count = res.data.total;
 						this.Count >= this.hourCount ? this.disabled = true : this.disabled = false;
 					});
+					this.loading = false;
 			},
 
 
@@ -924,9 +945,11 @@
 						if (this.form.id == '' || this.form.id == null) {
 							let fd = JSON.parse(JSON.stringify(this.form));
 							delete fd.id;
+							this.loading = true;
 							this.$axios.post('/course/addCourse', fd).then(res => {
 								if (!res.success) {
 									this.$message.success(res.errMsg);
+									this.loading = false;
 									return;
 								}
 								this.$message.success(`操作成功`);
@@ -936,11 +959,14 @@
 								this.getData();
 								this.editVisible = false;
 							});
+							this.loading = false;
 						} else {
 							/* 更新 */
+							this.loading = true;
 							this.$axios.post('/course/updCourse', this.form).then(res => {
 								if (!res.success) {
 									this.$message.success(res.errMsg);
+									this.loading = false;
 									return;
 								}
 								this.$message.success(`操作成功`);
@@ -950,6 +976,7 @@
 								this.getData();
 								this.editVisible = false;
 							});
+							this.loading = false;
 						}
 						this.active = 0;
 					} else {
@@ -962,26 +989,31 @@
 			// 确定删除课程
 			deleteRow() {
 				var id = this.form.id;
+				this.loading = true;
 				this.$axios.post('/course/delCourse', {
 					id: id
 				}).then(res => {
 					if (!res.success) {
 						this.$message.success(res.errMsg);
+						this.loading = false;
 						return;
 					}
 					this.tableData.splice(this.idx, 1);
 					this.$message.success('删除成功');
 					this.delVisible = false;
 				});
+				this.loading = false;
 			},
 			//确定删除课时
 			deleteHour() {
 				var id = this.form.id;
+				this.loading = true;
 				this.$axios.post('/classNumber/delete', {
 					id: id
 				}).then(res => {
 					if (!res.success) {
 						this.$message.success(res.errMsg);
+						this.loading = false;
 						return;
 					}
 					this.hourTableData.splice(this.idx, 1);
@@ -990,10 +1022,12 @@
 					this.idx = "";
 					this.delHourVisible = false;
 				});
+				this.loading = false;
 			},
 			//确定删除价格
 			deletePrice() {
 				var id = this.form.id;
+				this.loading = true;
 				this.$axios.post('/price/delete', {
 					id: id
 				}).then(res => {
@@ -1007,6 +1041,7 @@
 					this.idx = "";
 					this.delPriceVisible = false;
 				});
+				this.loading = false;
 			},
 
 		}

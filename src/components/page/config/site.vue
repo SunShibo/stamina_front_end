@@ -1,5 +1,5 @@
 <template>
-  <div class="table">
+  <div class="table" v-loading="loading">
     <div class="crumbs">
       <el-breadcrumb separator="/">
         <el-breadcrumb-item>
@@ -85,6 +85,7 @@
     data() {
 
       return {
+		 loading: true,
         // 总数据
         tableData:[],
         editVisible:false,
@@ -138,9 +139,11 @@
       },
       getData() {
         // 开发环境使用 easy-mock 数据，正式环境使用 json 文件
+		this.loading = true;
         this.$axios.post("/distance/queryDistance", {}).then(res => {
           this.tableData = res.data;
         });
+		this.loading = false;
       },
       handleEdit(idex,row) {
         this.form=row;
@@ -154,6 +157,7 @@
             if (this.form.id == "") {
               let fd = JSON.parse(JSON.stringify(this.form));
               delete fd.id;
+			  this.loading = true;
               this.$axios.post("/distance/addDistance", fd).then(res => {
                 if (!res.success) {
                   this.$message.success(res.errMsg);
@@ -163,7 +167,9 @@
                 this.getData();
                 this.editVisible = false;
               });
+			  this.loading = false;
             } else {
+			this.loading = true;
               this.$axios.post("/distance/updDistance", this.form).then(res => {
                 if (!res.success) {
                   this.$message.success(res.errMsg);
@@ -173,6 +179,7 @@
                 this.getData();
                 this.editVisible = false;
               });
+			  this.loading = false;
             }
           } else {
             console.error("error submit!!");
@@ -186,6 +193,7 @@
           cancelButtonText: '取消',
           type: 'warning'
         }).then(() => {
+			this.loading = true;
           this.$axios({
             url: '/distance/delDistance',
             method: 'POST',
@@ -198,6 +206,7 @@
               this.getData();
             }
           });
+		  this.loading = false;
         })
       },
       dateFormatCreate(time) {

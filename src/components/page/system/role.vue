@@ -1,5 +1,5 @@
 <template>
-    <div class="table">
+    <div class="table" v-loading="loading">
         <div class="crumbs">
             <el-breadcrumb separator="/">
                 <el-breadcrumb-item><i class="el-icon-lx-cascades"></i> 角色管理</el-breadcrumb-item>
@@ -91,6 +91,8 @@
         name: 'role',
         data() {
             return {
+				loading: true,
+				
                 tableData: [],//列表数据
                 cur_page: 1,
                 multipleSelection: [],
@@ -152,19 +154,24 @@
             // 获取 easy-mock 的模拟数据
             //获取角色信息列表
             getData() {
+				this.loading = true;
                 this.$axios.post("/admin/getAllRoleMenu", {
                     roleName: this.select_word.trim()
                 }).then((res) => {
                     if(res.success){
                         this.tableData = res.data;
+						this.loading = false;
                     }
-                })
+                });
+				this.loading = false;
             },
             //获取所有菜单
             getMenuData() {
+				this.loading = true;
                 this.$axios.post("/admin/getMenuList", {}).then((res) => {
                     this.menu = res.data;
                 })
+				this.loading = false;
             },
             search() {
                 this.getData();
@@ -211,16 +218,19 @@
                 for (let i = 0; i < length; i++) {
                     str.push(this.multipleSelection[i]['id']);
                 }
+				this.loading = true;
                 this.$axios.post("/admin/delRoleByIds", {roleIds: str.join(",")}).then((res) => {
                     if (!res.success) {
-                        this.$message.success(res.errMsg);
+                        this.$message.error(res.errMsg);
+						this.loading = false;
                         return;
                     }
 
                     this.$message.success('删除成功');
                     this.delVisible = false;
                     this.getData();
-                })
+                });
+				this.loading = false;
             },
             handleSelectionChange(val) {
                 this.multipleSelection = val;
@@ -249,43 +259,52 @@
                     let fd = JSON.parse(JSON.stringify(this.form));
                     delete fd.id;
                     delete fd.des;
+					this.loading = true;
                     this.$axios.post("/admin/addRoleGrantAuthority", fd).then((res) => {
                         if (!res.success) {
                             this.$message.error(res.errMsg);
+							this.loading = false;
                             return;
                         }
                         this.$message.success(`操作成功`);
                         this.getData();
                         this.editVisible = false;
-                    })
+                    });
+					this.loading = false;
                 } else {
                     //编辑角色
                     this.form.roleId = this.form.id;
                     this.form.languageId = JSON.stringify(this.form.languageId);
                     delete this.form.id;
                     console.log(this.form)
+					this.loading = true;
                     this.$axios.post("/admin/grantAuthority", this.form).then((res) => {
                         if (!res.success) {
                             this.$message.success(res.errMsg);
+							this.loading = false;
                             return;
                         }
                         this.$message.success(`操作成功`);
                         this.getData();
                         this.editVisible = false;
-                    })
+                    });
+					this.loading = false;
                 }
             },
             // 确定删除
             deleteRow(){
+				this.loading = true;
                 this.$axios.post("/admin/delRoleByIds", {roleIds: "["+this.form.id+"]"}).then((res) => {
                     if (!res.success) {
-                        this.$message.success(res.errMsg);
+                        this.$message.error(res.errMsg);
+						this.loading = false;
                         return;
                     }
                     this.tableData.splice(this.idx, 1);
                     this.$message.success('删除成功');
                     this.delVisible = false;
-                })
+                });
+				this.loading = false;
 
             }
         }

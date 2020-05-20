@@ -1,5 +1,5 @@
 <template>
-	<div class="table">
+	<div class="table" v-loading="loading">
 		<div class="crumbs">
 			<el-breadcrumb separator="/">
 				<el-breadcrumb-item><i class="el-icon-lx-cascades">结算订单</i></el-breadcrumb-item>
@@ -78,6 +78,8 @@
 		name: 'course',
 		data() {
 			return {
+				loading: true,
+				
 				coachSettlementStatusOptions: [{
 					value: '',
 					label: '全部'
@@ -257,6 +259,7 @@
 						.getMinutes() + ":" + ftime.getSeconds();
 				}
 				// 开发环境使用 easy-mock 数据，正式环境使用 json 文件
+				this.loading = true;
 				this.$axios
 					.post('/coach/queryCoachInfo', {
 						pageNo: this.currentPage,
@@ -274,6 +277,7 @@
 						this.tableData = res.data.records;
 						this.totalCount = res.data.total;
 					});
+					this.loading = false;
 			},
 			search() {
 				this.getData();

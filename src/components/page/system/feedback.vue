@@ -1,5 +1,5 @@
 <template>
-	<div class="table">
+	<div class="table" v-loading="loading">
 		<div class="crumbs">
 			<el-breadcrumb separator="/">
 				<el-breadcrumb-item><i class="el-icon-lx-cascades">意见反馈</i></el-breadcrumb-item>
@@ -55,6 +55,7 @@
 		name: 'course',
 		data() {
 			return {
+				loading: true,
 				// 总数据
 				tableData: [],
 				// 默认显示第几页
@@ -102,8 +103,8 @@
 				this.fstatus = val;
 				this.getData();
 			},
-			readVisible(val, oldVal){
-				if(val == false){
+			readVisible(val, oldVal) {
+				if (val == false) {
 					this.getData();
 				}
 			}
@@ -123,6 +124,7 @@
 			// 获取 easy-mock 的模拟数据
 			getData() {
 				// 开发环境使用 easy-mock 数据，正式环境使用 json 文件
+				this.loading = true;
 				this.$axios
 					.post('/feedback/query', {
 						pageNo: this.currentPage,
@@ -133,6 +135,7 @@
 						this.tableData = res.data.records;
 						this.totalCount = res.data.total;
 					});
+				this.loading = false;
 			},
 
 			//控制打开详细信息查看框体
@@ -148,24 +151,28 @@
 			},
 
 			changeFeedbackStatus(fid) {
+				this.loading = true;
 				this.$axios.post('/feedback/query', {
 					id: fid
 				}).then(res => {
 					if (!res.success) {
-						this.$message.success(res.errMsg);
+						this.$message.error(res.errMsg);
+						this.loading = false;
 						return;
 					}
 					this.$axios.post('/feedback/updateReadStatus', {
 						id: fid
 					}).then(res => {
 						if (!res.success) {
-							this.$message.success(res.errMsg);
+							this.$message.error(res.errMsg);
+							this.loading = false;
 							return;
 						}
 						this.$message.success(`已读`);
 					});
 
 				});
+				this.loading = false;
 			},
 
 
