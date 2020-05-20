@@ -230,7 +230,6 @@
 				if (this.selectTimeData == 0 || this.selectTimeData == null || this.selectTimeData == "") {
 					strSTime = "";
 					strETime = "";
-					this.$message.error("请选择时间");
 				} else {
 					strSTime = sTime.getFullYear() + '/' + (sTime.getMonth() + 1) + '/' + sTime.getDate() + " " +
 						sTime.getHours() +
@@ -269,6 +268,7 @@
 				var remarkForm = this.form;
 				this.form = {
 					id: remarkForm.id,
+					orderId: remarkForm.orderId,
 					remark: remarkForm.remark
 				};
 				this.loading = true;
@@ -471,7 +471,7 @@
 			handleRemark(index, row){
 				this.form = row;
 				this.idx = index;
-				this.ScoreVisible = true;
+				this.RemarkVisible = true;
 			},
 			handleTime(index, row) {
 				this.form = row;

@@ -264,6 +264,7 @@
 		methods: {
 			// 获取 easy-mock 的模拟数据
 			getData() {
+				this.loading = true;
 				// 开发环境使用 easy-mock 数据，正式环境使用 json 文件
 				this.$axios
 					.post('/coach/query', {
@@ -275,6 +276,7 @@
 						this.tableData = res.data.records;
 						this.totalCount = res.data.total;
 					});
+					this.loading = false;
 			},
 			/* getHourData() {
 				this.$axios
