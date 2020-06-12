@@ -3,10 +3,10 @@ let baseURL = '';
 
 //开发环境下
 if (process.env.NODE_ENV == 'development') {
-    baseURL = ' http://at.sia-edu.com/api';
+    baseURL = 'http://at.sia-edu.com/api';
 
 } else if (process.env.NODE_ENV == 'production') {
-    baseURL =  ' http://at.sia-edu.com/api';
+    baseURL =  'http://at.sia-edu.com/api';
 }
 
 export {

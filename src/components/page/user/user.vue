@@ -46,7 +46,7 @@
               <el-button
                       type="text"
                       icon="el-icon-edit"
-                      @click="queryStudent(scope.row)"
+                      @click="queryAddress(scope.row)"
               >查看地址</el-button>
           </template>
         </el-table-column>
@@ -246,7 +246,7 @@
 		this.loading = false;
         this.student=true;
       },
-      queryStudent(row){
+      queryAddress(row){
 		  this.loading = true;
         this.$axios.post("/address/queryAddressByUserId", {
           userId:row.id,

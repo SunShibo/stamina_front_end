@@ -924,7 +924,7 @@
 				var labelStr = this.form.label;
 				//字符串截取为数组
 				this.tags = labelStr.split(",");
-
+				
 				this.editVisible = true;
 			},
 			/* 定位删除的元素 */
