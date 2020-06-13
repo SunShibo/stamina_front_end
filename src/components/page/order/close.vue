@@ -40,10 +40,12 @@
 			<el-table :data="tableData" border class="table" ref="multipleTable" v-loading="$store.state.requestLoading">
 				<template slot-scope="scope">
 					<el-table-column :show-overflow-tooltip="true" type="index" label="序号" align="center" sortable width="50"></el-table-column>
-					<el-table-column :show-overflow-tooltip="true" width="100" prop="coachName" label="教练姓名"></el-table-column>
-					<el-table-column :show-overflow-tooltip="true" width="100" prop="coachSettlementStatus" label="教练结算状态" :formatter="formatCoachSettlementStatus"></el-table-column>
-					<el-table-column :show-overflow-tooltip="true" width="100" prop="isCoachSettlement" label="是否需要给教练结算" :formatter="formatIsCoachSettlement"></el-table-column>
-					<el-table-column :show-overflow-tooltip="true" width="140" prop="phone" label="手机号码"></el-table-column>
+					<el-table-column :formatter="formatAllData" :show-overflow-tooltip="true" width="100" prop="coachName" label="教练姓名"></el-table-column>
+					<el-table-column :formatter="formatAllData" :show-overflow-tooltip="true" width="100" prop="coachSettlementStatus"
+					 label="教练结算状态"></el-table-column>
+					<el-table-column :formatter="formatAllData" :show-overflow-tooltip="true" width="100" prop="isCoachSettlement"
+					 label="是否需要给教练结算"></el-table-column>
+					<el-table-column :formatter="formatAllData" :show-overflow-tooltip="true" width="140" prop="phone" label="手机号码"></el-table-column>
 					<el-table-column :show-overflow-tooltip="true" width="140" prop="attendTime" label="上课时间" :formatter="formatAttendTime"></el-table-column>
 					<el-table-column :show-overflow-tooltip="true" width="140" prop="finishTime" label="下课时间" :formatter="formatFinishTime"></el-table-column>
 					<el-table-column :show-overflow-tooltip="true" width="150" prop="courseName" label="课程名称"></el-table-column>
@@ -79,7 +81,7 @@
 		data() {
 			return {
 				loading: true,
-				
+
 				coachSettlementStatusOptions: [{
 					value: '',
 					label: '全部'
@@ -163,8 +165,46 @@
 			}
 		},
 		methods: {
-			
-			formatCoachSettlementStatus(row){
+			formatAllData(row, column) {
+				var returnData;
+				switch (column.property) {
+					case "coachName":
+						if (row.coachName == null || row.coachName == "") {
+							returnData = "未绑定教练";
+						} else {
+							returnData = row.coachName;
+						}
+						break;
+					case "coachSettlementStatus":
+						if (row.coachSettlementStatus == null || row.coachSettlementStatus == "") {
+							returnData = "未绑定教练";
+						} else if (row.coachSettlementStatus == "yes") {
+							returnData = "已经结算";
+						} else {
+							returnData = "未结算";
+						}
+						break;
+					case "isCoachSettlement":
+						if (row.isCoachSettlement == null || row.isCoachSettlement == "") {
+							returnData = "未绑定教练";
+						} else if (row.isCoachSettlement == "yes") {
+							returnData = "需要";
+						} else {
+							returnData = "不需要";
+						}
+						break;
+					case "phone":
+						if (row.phone == "" || row.phone == null) {
+							returnData = "未绑定教练";
+						}else{
+							returnData = row.phone;
+						}
+						break;
+				}
+				return returnData;
+			},
+
+			formatCoachSettlementStatus(row) {
 				switch (row.coachSettlementStatus) {
 					case "yes":
 						return "已结算";
@@ -172,13 +212,13 @@
 						return "未结算";
 				}
 			},
-			
-			formatCreateTime(row){
+
+			formatCreateTime(row) {
 				let time = new Date(row.createTime);
 				return time.getFullYear() + '-' + (time.getMonth() + 1) + '-' + time.getDate() + " " + time.getHours() + ":" + time
 					.getMinutes() + ":" + time.getSeconds();
 			},
-			formatAttendStatus(row){
+			formatAttendStatus(row) {
 				switch (row.attendStatus) {
 					case "yes":
 						return "已上课";
@@ -186,8 +226,8 @@
 						return "未上课";
 				}
 			},
-			
-			formatOrderStatus(row){
+
+			formatOrderStatus(row) {
 				switch (row.orderStatus) {
 					case "notpay":
 						return "未付款";
@@ -201,8 +241,8 @@
 						return "已取消";
 				}
 			},
-			
-			formatIsOpen(row){
+
+			formatIsOpen(row) {
 				switch (row.isOpen) {
 					case "yes":
 						return "已开课";
@@ -210,8 +250,8 @@
 						return "尚未开课";
 				}
 			},
-			
-			formatIsCoachSettlement(row){
+
+			formatIsCoachSettlement(row) {
 				switch (row.isCoachSettlement) {
 					case "yes":
 						return "需要结算";
@@ -219,12 +259,12 @@
 						return "不需要结算";
 				}
 			},
-			formatAttendTime(row){
+			formatAttendTime(row) {
 				let time = new Date(row.attendTime);
 				return time.getFullYear() + '-' + (time.getMonth() + 1) + '-' + time.getDate() + " " + time.getHours() + ":" + time
 					.getMinutes() + ":" + time.getSeconds();
 			},
-			formatFinishTime(row){
+			formatFinishTime(row) {
 				let time = new Date(row.finishTime);
 				return time.getFullYear() + '-' + (time.getMonth() + 1) + '-' + time.getDate() + " " + time.getHours() + ":" + time
 					.getMinutes() + ":" + time.getSeconds();
@@ -277,7 +317,7 @@
 						this.tableData = res.data.records;
 						this.totalCount = res.data.total;
 					});
-					this.loading = false;
+				this.loading = false;
 			},
 			search() {
 				this.getData();

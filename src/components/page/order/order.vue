@@ -18,7 +18,7 @@
 				</el-date-picker>
 				<el-button type="primary" icon="search" @click="search">搜索</el-button>
 				<el-button type="primary" icon="search" @click="reset">重置</el-button>
-				<a :href="Rurl" >
+				<a :href="Rurl">
 					<el-button type="primary" icon="search" @click="outputExamine">导出报表</el-button>
 				</a>
 			</div>
@@ -28,19 +28,21 @@
 					<template slot-scope="props">
 						<el-table :data="childrenTableData">
 							<el-table-column prop="classNumberName" label="课时名称"></el-table-column>
+							<el-table-column :formatter="formatAllData" prop="coachId" label="任课教练"></el-table-column>
 							<el-table-column prop="attendTime" label="上课时间" :formatter="formatChildrenAttendTimeDate"></el-table-column>
 							<el-table-column prop="finishTime" label="下课时间" :formatter="formatChildrenFinishTimeDate"></el-table-column>
 							<el-table-column prop="price" label="价格"></el-table-column>
-							<el-table-column prop="attendStatus" label="上课状态"></el-table-column>
+							<el-table-column :formatter="formatAllData" prop="attendStatus" label="上课状态"></el-table-column>
 							<el-table-column prop="signStatus" label="签到状态" :formatter="formatSignStatusDate"></el-table-column>
-							<el-table-column prop="isCoachSettlement" label="是否需要给教练结算"></el-table-column>
+							<el-table-column :formatter="formatAllData" prop="isCoachSettlement" label="是否需要给教练结算"></el-table-column>
 							<el-table-column prop="remark" label="备注"></el-table-column>
 							<el-table-column prop="scoreTime" label="评分时间" :formatter="formatChildrenScoreTimeDate"></el-table-column>
 							<el-table-column prop="scoreNumber" label="评分分数"></el-table-column>
-							<el-table-column prop="createTime" label="创建时间" :formatter="formatChildrenCreateTimeDate"></el-table-column>
 							<el-table-column fixed="right" header-align="center" align="center" width="160" label="操作">
 								<template slot-scope="scp">
+									<el-button type="text" icon="el-icon-s-order" @click="handleEvaluation(scp.$index, scp.row)">查看评价</el-button>
 									<el-button type="text" icon="el-icon-s-order" @click="handleRemark(scp.$index, scp.row)">修改备注</el-button>
+									<el-button type="text" icon="el-icon-s-order" @click="handleCoach(scp.$index, scp.row)">分配教练</el-button>
 									<el-button type="text" icon="el-icon-s-order" @click="handleScore(scp.$index, scp.row)">评分</el-button>
 									<el-button type="text" icon="el-icon-s-order" @click="handleTime(scp.$index, scp.row)">修改上课时间</el-button>
 								</template>
@@ -53,7 +55,7 @@
 				<el-table-column :show-overflow-tooltip="true" type="index" label="序号" align="center" width="50"></el-table-column>
 				<el-table-column :show-overflow-tooltip="true" width="200" prop="orderNumber" label="订单号"></el-table-column>
 				<el-table-column :show-overflow-tooltip="true" width="140" prop="courseName" label="课程名称"></el-table-column>
-				<el-table-column :show-overflow-tooltip="true" width="100" prop="name" label="用户名称"></el-table-column>
+				<el-table-column :show-overflow-tooltip="true" width="100" prop="studentName" label="用户名称"></el-table-column>
 				<el-table-column width="120" height="60" prop="headPic" label="课程缩略图">
 					<template slot-scope="scope">
 						<img :src="scope.row.thumbnailPic" width="50" height="50" />
@@ -67,7 +69,7 @@
 				<el-table-column :show-overflow-tooltip="true" width="100" prop="attendTime" label="上课时间" :formatter="formatAttendTimeDate"></el-table-column>
 				<el-table-column :show-overflow-tooltip="true" width="100" prop="finishTime" label="下课时间" :formatter="formatFinishTimeDate"></el-table-column>
 
-				<el-table-column :show-overflow-tooltip="true" width="100" prop="isOpen" label="是否开课"></el-table-column>
+				<el-table-column :show-overflow-tooltip="true" width="100" prop="isOpen" label="是否开课" :formatter="formatAllData"></el-table-column>
 				<el-table-column :show-overflow-tooltip="true" width="100" prop="orderStatus" label="订单状态" :formatter="formatOrderStatusDate"></el-table-column>
 				<el-table-column :show-overflow-tooltip="true" width="130" prop="teamName" label="团队名称"></el-table-column>
 				<el-table-column :show-overflow-tooltip="true" width="120" prop="closeTime" label="拼单结束日期" :formatter="formatCloseTimeDate"></el-table-column>
@@ -78,6 +80,39 @@
 				 :page-sizes="pageSizes" :page-size="PageSize" layout="total, sizes, prev, pager, next, jumper" :total="totalCount"></el-pagination>
 			</div>
 		</div>
+		<!--  @focus="getStaffInfo" -->
+		<!-- 分配教练 -->
+		<el-dialog title="分配 / 修改教练" :visible.sync="CoachVisible" width="60%" :close-on-click-modal="closeOnClickModal">
+			<el-form ref="coachform" :model="form" label-width="50px">
+				<el-form-item label-width="100px" label="分数" prop="scoreNumber">
+					<el-select @focus="getAllCoachInfo" filterable v-model="form.coachId" placeholder="请选择教练">
+						<el-option v-for="item in coachList" :key="item.id" :label="item.coachName+''+item.phone" :value="item.id"></el-option>
+					</el-select>
+				</el-form-item>
+			</el-form>
+			<span slot="footer" class="dialog-footer">
+				<el-button type="primary" :loading="$store.state.requestLoading" @click="changeCoach()">确 定</el-button>
+				<el-button @click="CoachVisible = false">取 消</el-button>
+			</span>
+		</el-dialog>
+
+		<!-- 评价信息 -->
+		<el-dialog title="评价信息" :visible.sync="evaluationVisible" width="60%" :close-on-click-modal="closeOnClickModal">
+			<el-table :data="evaluationData" border class="table" ref="multipleTable" v-loading="$store.state.requestLoading">
+				<template slot-scope="scope">
+					<el-table-column :show-overflow-tooltip="true" type="index" label="序号" align="center" sortable width="50"></el-table-column>
+					<el-table-column :show-overflow-tooltip="true" width="180" prop="courseStar" label="课程星数"></el-table-column>
+					<el-table-column :show-overflow-tooltip="true" width="180" prop="coachStar" label="教练星数"></el-table-column>
+					<el-table-column :show-overflow-tooltip="true" width="180" prop="appraiseContent" label="评价内容"></el-table-column>
+					<el-table-column :show-overflow-tooltip="true" width="180" prop="appraiseTime" label="评价时间" :formatter="formatAllData"></el-table-column>
+				</template>
+			</el-table>
+
+			<span slot="footer" class="dialog-footer">
+				<el-button @click="evaluationVisible = false">关 闭</el-button>
+			</span>
+		</el-dialog>
+
 		<!-- 评/修改 分弹出框 -->
 		<el-dialog title="评/修改 分" :visible.sync="ScoreVisible" width="60%" :close-on-click-modal="closeOnClickModal">
 			<el-form ref="scoreform" :model="form" label-width="50px" :rules="rules">
@@ -108,7 +143,7 @@
 				<el-button @click="TimeVisible = false">取 消</el-button>
 			</span>
 		</el-dialog>
-		
+
 		<!-- 修改子订单备注弹出框 -->
 		<el-dialog title="修改备注" :visible.sync="RemarkVisible" width="60%" :close-on-click-modal="closeOnClickModal">
 			<el-form ref="remarkform" :model="form" label-width="50px" :rules="rules">
@@ -138,7 +173,15 @@
 
 				orderNumberTitle: "",
 				
+				putCoachId:"",
+
 				RemarkVisible: false,
+
+				CoachVisible: false,
+
+				evaluationData: [],
+
+				evaluationVisible: false,
 
 				classOrderStatus: "全部",
 				classOrderOptions: [{
@@ -163,6 +206,9 @@
 
 				selectTimeData: [],
 				Rurl: "#",
+
+				coachList: [],
+
 				// 总数据
 				tableData: [],
 				childrenTableData: [],
@@ -226,7 +272,7 @@
 				var strSTime = "";
 				var strETime = "";
 				this.classOrderStatus == "全部" ? strOrder = "" : strOrder = this.classOrderStatus
-				
+
 				if (this.selectTimeData == 0 || this.selectTimeData == null || this.selectTimeData == "") {
 					strSTime = "";
 					strETime = "";
@@ -235,12 +281,12 @@
 						sTime.getHours() +
 						":" + sTime
 						.getMinutes() + ":" + sTime.getSeconds();
-				
+
 					strETime = eTime.getFullYear() + '/' + (eTime.getMonth() + 1) + '/' + eTime.getDate() + " " +
 						eTime.getHours() +
 						":" + eTime
 						.getMinutes() + ":" + eTime.getSeconds();
-						
+
 					this.Rurl = "/api/export/order?startDate=" + strSTime + "&endDate=" + strETime + "&strOrder=" + strOrder;
 				}
 			}
@@ -248,6 +294,7 @@
 
 		created() {
 			this.getData();
+			this.getAllCoachInfo();
 		},
 		computed: {
 			data() {
@@ -258,13 +305,68 @@
 			}
 		},
 		methods: {
-			outputExamine(){
+			getAllCoachInfo() {
+				this.$axios
+					.post('/coach/query', {
+						pageNo: 1,
+						pageSize: 1000000,
+						coachName: ""
+					})
+					.then(res => {
+						if (!res.success) {
+							this.$message.error("获取教练信息错误");
+						}
+						this.coachList = res.data.records;
+					});
+			},
+			formatAllData(row, column) {
+				var returnData;
+				switch (column.property) {
+					case "isCoachSettlement":
+						if (row.isCoachSettlement == null) {
+							returnData = "未绑定教练";
+						}
+						break;
+					case "attendStatus":
+						if (row.attendStatus == "yes") {
+							returnData = "已上课";
+						} else {
+							returnData = "未上课";
+						}
+						break;
+					case "coachId":
+						if (row.coachId == "" || row.coachId == null) {
+							returnData = "暂未分配教练";
+						} else {
+							this.coachList.forEach((item, index, value) => {
+								var coachid = item.id;
+								if (row.coachId == coachid) {
+									returnData = item.coachName;
+								}
+							});
+						}
+						break;
+					case "isOpen":
+						if (row.isOpen == "yes") {
+							returnData = "已经开课";
+						} else {
+							returnData = "暂未开课";
+						}
+						break;
+					case "appraiseTime":
+						returnData = new Date(row.appraiseTime).format("yyyy-MM-dd hh:mm:ss");
+						break;
+				}
+				return returnData;
+			},
+
+			outputExamine() {
 				if (this.selectTimeData == 0 || this.selectTimeData == null || this.selectTimeData == "") {
 					this.$message.error("请选择时间");
 				}
 			},
-			
-			changeRemark(){
+
+			changeRemark() {
 				var remarkForm = this.form;
 				this.form = {
 					id: remarkForm.id,
@@ -284,7 +386,7 @@
 				});
 				this.loading = false;
 			},
-			
+
 			exChange(row, childrenTableData) {
 				this.loading = true
 
@@ -336,9 +438,15 @@
 			},
 
 			formatChildrenScoreTimeDate(row) {
+
 				let time = new Date(row.scoreTime);
-				return time.getFullYear() + '/' + (time.getMonth() + 1) + '/' + time.getDate() + " " + time.getHours() + ":" + time
-					.getMinutes() + ":" + time.getSeconds();
+				if (time.getFullYear() <= 2000) {
+					return "暂未评分";
+				} else {
+					return time.getFullYear() + '/' + (time.getMonth() + 1) + '/' + time.getDate() + " " + time.getHours() + ":" +
+						time
+						.getMinutes() + ":" + time.getSeconds();
+				}
 			},
 			formatChildrenCreateTimeDate(row) {
 				let time = new Date(row.createTime);
@@ -429,6 +537,22 @@
 				});
 				this.loading = false;
 			},
+
+			getEvaluationData(orderId) {
+				this.loading = true;
+				this.$axios({
+					url: '/orderChildAppraise/queryByOrderChildId',
+					method: 'post',
+					data: {
+						orderChildId: orderId
+					}
+				}).then(res => {
+					this.evaluationData = res.data;
+					this.loading = false;
+				});
+				this.loading = false;
+			},
+
 			search() {
 				this.getData();
 			},
@@ -458,9 +582,31 @@
 				switch (row.signStatus) {
 					case "no":
 						return "未签到";
-					case "yes":
+					case "over":
 						return "已签到";
 				}
+			},
+			
+			
+			changeCoach() {
+				var remarkForm = this.form;
+				this.form = {
+					id: remarkForm.id,
+					orderId: remarkForm.orderId,
+					coachId: remarkForm.coachId
+				};
+				this.loading = true;
+				this.$axios.post('/order/updateOrderChild', this.form).then(res => {
+					if (!res.success) {
+						this.$message.success(res.errMsg);
+						return;
+					}
+					this.$message.success(`修改成功`);
+					this.getChildenData(this.form.orderId);
+					this.form = {};
+					this.CoachVisible = false;
+				});
+				this.loading = false;
 			},
 
 			handleScore(index, row) {
@@ -468,7 +614,19 @@
 				this.idx = index;
 				this.ScoreVisible = true;
 			},
-			handleRemark(index, row){
+
+			handleCoach(index, row) {
+				this.form = {};
+				this.form = row;
+				this.CoachVisible = true;
+			},
+
+			handleEvaluation(index, row) {
+				this.getEvaluationData(row.id);
+				this.evaluationVisible = true;
+			},
+
+			handleRemark(index, row) {
 				this.form = row;
 				this.idx = index;
 				this.RemarkVisible = true;
