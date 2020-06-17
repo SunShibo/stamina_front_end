@@ -19,6 +19,7 @@
 					</el-select>
 				</template>
 				<br />
+				<br />
 				<template>
 					<span>是否需要给教练结算:</span>
 					<el-select v-model="isCoachSettlementData" placeholder="请选择">
@@ -31,8 +32,8 @@
 						<el-option v-for="item in orderStatusOptions" :key="item.id" :label="item.label" :value="item.value"></el-option>
 					</el-select>
 				</template>
-
-
+				
+				&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 				<el-button type="primary" icon="search" @click="search">搜索</el-button>
 				<el-button type="primary" icon="add" @click="reset">重置</el-button>
 			</div>
@@ -176,18 +177,14 @@
 						}
 						break;
 					case "coachSettlementStatus":
-						if (row.coachSettlementStatus == null || row.coachSettlementStatus == "") {
-							returnData = "未绑定教练";
-						} else if (row.coachSettlementStatus == "yes") {
+						if (row.coachSettlementStatus == "yes") {
 							returnData = "已经结算";
 						} else {
 							returnData = "未结算";
 						}
 						break;
 					case "isCoachSettlement":
-						if (row.isCoachSettlement == null || row.isCoachSettlement == "") {
-							returnData = "未绑定教练";
-						} else if (row.isCoachSettlement == "yes") {
+						if (row.isCoachSettlement == "yes") {
 							returnData = "需要";
 						} else {
 							returnData = "不需要";

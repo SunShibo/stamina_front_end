@@ -323,8 +323,10 @@
 				var returnData;
 				switch (column.property) {
 					case "isCoachSettlement":
-						if (row.isCoachSettlement == null) {
-							returnData = "未绑定教练";
+						if (row.isCoachSettlement == "yes") {
+							returnData = "需要";
+						}else{
+							returnData = "不需要";
 						}
 						break;
 					case "attendStatus":
