@@ -113,7 +113,7 @@
 				<el-button @click="delPriceVisible = false">取 消</el-button>
 			</span>
 		</el-dialog>
-
+		
 		<!-- 删除课时弹出框 -->
 		<el-dialog title="删除" :visible.sync="delHourVisible" width="25%" :close-on-click-modal="closeOnClickModal">
 			<span>确定删除课时吗?</span>
@@ -133,7 +133,7 @@
 
 		<!-- 编辑课时弹出框 -->
 		<el-dialog title="新增/编辑课时" :visible.sync="editHourVisible" width="75%" height="700px" :close-on-click-modal="closeOnClickModal">
-			<el-form ref="courseform" :model="form" :rules="hourRules" label-width="50px">
+			<el-form ref="courseTimeform" :model="form" :rules="hourRules" label-width="50px">
 				<el-form-item label-width="100px" label="课时名称" prop="className" :rules="[{ required: true, message: '该项不能为空', trigger: 'blur' }]">
 					<el-input v-model="form.className"></el-input>
 				</el-form-item>
@@ -152,7 +152,7 @@
 
 		<!-- 编辑价格弹出框 -->
 		<el-dialog title="新增/编辑价格" :visible.sync="editPriceVisible" width="75%" height="700px" :close-on-click-modal="closeOnClickModal">
-			<el-form ref="courseform" :model="form" :rules="priceRules" label-width="50px">
+			<el-form ref="coursePriceform" :model="form" :rules="priceRules" label-width="50px">
 				<el-form-item label-width="100px" label="营名称" prop="coursePriceName" :rules="[{ required: true, message: '该项不能为空', trigger: 'blur' }]">
 					<el-input v-model="form.coursePriceName"></el-input>
 				</el-form-item>
@@ -449,16 +449,6 @@
 						message: '请选择一个地点类型',
 						trigger: 'change'
 					}],
-					thumbnailPic: [{
-						required: true,
-						message: '请选择缩略图',
-						trigger: 'blur'
-					}],
-					introducePic: [{
-						required: true,
-						message: '请选择介绍图',
-						trigger: 'blur'
-					}],
 					studentsSex: [{
 						required: true,
 						message: '请输入适合年龄',
@@ -469,11 +459,7 @@
 						message: '请输入训练频次',
 						trigger: 'blur'
 					}],
-					introduce: [{
-						required: true,
-						message: '请选择课程介绍图片',
-						trigger: 'blur'
-					}],
+					
 					classNumber: [{
 						required: true,
 						message: '请输入课时数',
@@ -488,11 +474,6 @@
 						required: true,
 						message: '请输入类型',
 						trigger: 'change'
-					}],
-					ruleIntroduction: [{
-						required: true,
-						message: '请选择规则介绍图片',
-						trigger: 'blur'
 					}]
 				}
 			};
@@ -632,7 +613,7 @@
 				// 切换页码时，要获取每页显示的条数
 				this.getData(this.PageSize, val * this.pageSize);
 			},
-
+			
 			// 获取 easy-mock 的模拟数据
 			getData() {
 				// 开发环境使用 easy-mock 数据，正式环境使用 json 文件
@@ -701,7 +682,7 @@
 			},
 			//新增\更新价格信息
 			savePriceEdit() {
-				this.$refs.courseform.validate(valid => {
+				this.$refs.coursePriceform.validate(valid => {
 					if (valid) {
 						/* 添加 */
 						const priceitem = this.form;
@@ -763,7 +744,7 @@
 			},
 
 			saveHourEdit() {
-				this.$refs.courseform.validate(valid => {
+				this.$refs.courseTimeform.validate(valid => {
 					if (valid) {
 						/* 添加 */
 						const houritem = this.form;
@@ -893,13 +874,21 @@
 			handleEdit(index, row) {
 				this.form = {};
 				this.thumbnailPicdatelist = [];
-				this.thumbnailPicdatelist.push({name:row.thumbnailPic,url:row.thumbnailPic});
+				if(row.thumbnailPic != "" && row.thumbnailPic != null){
+					this.thumbnailPicdatelist.push({name:row.thumbnailPic,url:row.thumbnailPic});
+				}
 				this.introducePicdatelist = [];
-				this.introducePicdatelist.push({name:row.introducePic,url:row.introducePic});
+				if(row.introducePic != "" && row.introducePic != null){
+					this.introducePicdatelist.push({name:row.introducePic,url:row.introducePic});
+				}
 				this.introducedatelist = [];
-				this.introducedatelist.push({name:row.introduce,url:row.introduce});
+				if(row.introduce != "" && row.introduce != null){
+					this.introducedatelist.push({name:row.introduce,url:row.introduce});
+				}
 				this.ruleIntroductiondatelist = [];
-				this.ruleIntroductiondatelist.push({name:row.ruleIntroduction,url:row.ruleIntroduction});
+				if(row.ruleIntroduction != "" && row.ruleIntroduction != null){
+					this.ruleIntroductiondatelist.push({name:row.ruleIntroduction,url:row.ruleIntroduction});
+				}
 				this.active = 0;
 				this.tags = [];
 				this.show = false;
@@ -946,6 +935,7 @@
 							let fd = JSON.parse(JSON.stringify(this.form));
 							delete fd.id;
 							this.loading = true;
+							
 							this.$axios.post('/course/addCourse', fd).then(res => {
 								if (!res.success) {
 									this.$message.success(res.errMsg);
@@ -1018,6 +1008,7 @@
 					}
 					this.hourTableData.splice(this.idx, 1);
 					this.$message.success('删除成功');
+					this.disabled = false;
 					this.form = {};
 					this.idx = "";
 					this.delHourVisible = false;

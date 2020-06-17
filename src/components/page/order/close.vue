@@ -281,13 +281,14 @@
 			},
 			// 获取 easy-mock 的模拟数据
 			getData() {
-				var atime = this.timeData[0];
-				var ftime = this.timeData[1];
 				var strATime = "";
 				var strFTime = "";
 				if (this.timeData == null || this.timeData == "" || this.timeData == 0) {
-
+					
 				} else {
+					var atime = this.timeData[0];
+					var ftime = this.timeData[1];
+					
 					strATime = atime.getFullYear() + '-' + (atime.getMonth() + 1) + '-' + atime.getDate() + " " +
 						atime.getHours() +
 						":" + atime
