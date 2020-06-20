@@ -8,6 +8,7 @@
 		<div class="container">
 			<div class="handle-box">
 				<el-input v-model="orderNumberTitle" placeholder="订单号码" class="handle-input mr10"></el-input>
+				<el-input v-model="joinOrderNumberTitle" placeholder="拼单号码" class="handle-input mr10"></el-input>
 				<template>
 					<el-select v-model="classOrderStatus" placeholder="请选择">
 						<el-option v-for="item in classOrderOptions" :key="item.id" :label="item.label" :value="item.value"></el-option>
@@ -53,9 +54,11 @@
 
 
 				<el-table-column :show-overflow-tooltip="true" type="index" label="序号" align="center" width="50"></el-table-column>
+				<el-table-column :show-overflow-tooltip="true" width="200" prop="joinOrderNumber" label="拼单号"></el-table-column>
 				<el-table-column :show-overflow-tooltip="true" width="200" prop="orderNumber" label="订单号"></el-table-column>
 				<el-table-column :show-overflow-tooltip="true" width="140" prop="courseName" label="课程名称"></el-table-column>
 				<el-table-column :show-overflow-tooltip="true" width="100" prop="studentName" label="用户名称"></el-table-column>
+				<el-table-column :show-overflow-tooltip="true" width="100" prop="coachId" label="教练"></el-table-column>
 				<el-table-column width="120" height="60" prop="headPic" label="课程缩略图">
 					<template slot-scope="scope">
 						<img :src="scope.row.thumbnailPic" width="50" height="50" />
@@ -74,6 +77,11 @@
 				<el-table-column :show-overflow-tooltip="true" width="130" prop="teamName" label="团队名称"></el-table-column>
 				<el-table-column :show-overflow-tooltip="true" width="120" prop="closeTime" label="拼单结束日期" :formatter="formatCloseTimeDate"></el-table-column>
 				<el-table-column :show-overflow-tooltip="true" width="130" prop="createTime" label="下单时间" :formatter="formatCreateTimeDate"></el-table-column>
+				<el-table-column fixed="right" header-align="center" align="center" width="160" label="操作">
+					<template slot-scope="scpMain">
+						<el-button type="text" icon="el-icon-s-order" @click="handleMainCoach(scpMain.$index, scpMain.row)">分配教练</el-button>
+					</template>
+				</el-table-column>
 			</el-table>
 			<div class="pagination">
 				<el-pagination @size-change="handleSizeChange" @current-change="handleCurrentChange" :current-page="currentPage"
@@ -81,10 +89,30 @@
 			</div>
 		</div>
 		<!--  @focus="getStaffInfo" -->
+		<!-- 主订单分配教练 -->
+		<el-dialog title="分配 / 修改教练" :visible.sync="mainOrderCoachVisible" width="40%" :close-on-click-modal="closeOnClickModal">
+			<el-form ref="maincoachform" :model="form" label-width="50px">
+				<el-form-item label-width="100px" label="教练" prop="coachId">
+					<el-select @focus="getAllCoachInfo" filterable v-model="form.coachId" placeholder="请选择教练">
+						<el-option v-for="item in coachList" :key="item.id" :label="item.coachName+''+item.phone" :value="item.id"></el-option>
+					</el-select>
+				</el-form-item>
+			</el-form>
+			<span slot="footer" class="dialog-footer">
+				<el-button type="primary" :loading="$store.state.requestLoading" @click="changeMainCoach()">确 定</el-button>
+				<el-button @click="mainOrderCoachVisible = false">取 消</el-button>
+			</span>
+		</el-dialog>
+		
+		
+		
+		
+		
+		
 		<!-- 分配教练 -->
 		<el-dialog title="分配 / 修改教练" :visible.sync="CoachVisible" width="60%" :close-on-click-modal="closeOnClickModal">
 			<el-form ref="coachform" :model="form" label-width="50px">
-				<el-form-item label-width="100px" label="分数" prop="scoreNumber">
+				<el-form-item label-width="100px" label="教练" prop="coachId">
 					<el-select @focus="getAllCoachInfo" filterable v-model="form.coachId" placeholder="请选择教练">
 						<el-option v-for="item in coachList" :key="item.id" :label="item.coachName+''+item.phone" :value="item.id"></el-option>
 					</el-select>
@@ -195,7 +223,7 @@
 					label: '拼单中'
 				}, {
 					value: 'attend',
-					label: '上课中'
+					label: '已拼成'
 				}, {
 					value: 'complete',
 					label: '已完成'
@@ -220,8 +248,11 @@
 				pageSizes: [10, 20, 50, 100],
 				// 默认每页显示的条数（可修改）
 				PageSize: 10,
+				
+				joinOrderNumberTitle:"",
 
 				changeTimeData: "",
+				mainOrderCoachVisible: false,
 
 				ScoreVisible: false,
 				TimeVisible: false,
@@ -305,6 +336,33 @@
 			}
 		},
 		methods: {
+			handleMainCoach(index,row){
+				this.form = row;
+				this.mainOrderCoachVisible = true;
+			},
+			
+			changeMainCoach(){
+				var remarkForm = this.form;
+				this.form = {
+					id: remarkForm.id,
+					coachId: remarkForm.coachId
+				};
+				this.loading = true;
+				this.$axios.post('/order/updateOrder', this.form).then(res => {
+					if (!res.success) {
+						this.$message.success(res.errMsg);
+						return;
+					}
+					this.$message.success(`修改成功`);
+					this.getData();
+					this.form = {};
+					this.mainOrderCoachVisible = false;
+				});
+				this.loading = false;
+			},
+			
+			
+			
 			getAllCoachInfo() {
 				this.$axios
 					.post('/coach/query', {
@@ -515,7 +573,8 @@
 						orderNumber: this.orderNumberTitle,
 						orderStatus: strOrder,
 						startTime: strSTime,
-						endTime: strETime
+						endTime: strETime,
+						joinOrderNumber: this.joinOrderNumberTitle
 					}
 				}).then(res => {
 					this.tableData = res.data.records;
@@ -571,7 +630,7 @@
 					case "notpay":
 						return "未付款";
 					case "spell":
-						return "拼单中";
+						return "拼客中";
 					case "attend":
 						return "上课中";
 					case "complete":
@@ -588,7 +647,6 @@
 						return "已签到";
 				}
 			},
-			
 			
 			changeCoach() {
 				var remarkForm = this.form;
@@ -666,7 +724,7 @@
 					finishTime: strFinishTime
 				}
 				this.loading = true;
-				this.$axios.post('/order/updateOrderChild', cTimeData).then(res => {
+				this.$axios.post('/order/updateOrderChildAll', cTimeData).then(res => {
 					if (!res.success) {
 						this.$message.success(res.errMsg);
 						return;

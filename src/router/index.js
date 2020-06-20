@@ -67,6 +67,16 @@ export default new Router({
 					}
 				},
 				{
+					path: '/home/time',
+					name: 'time',
+					component: resolve => require(['../components/page/course/time.vue'], resolve),
+					meta: {
+						title: '上课时间',
+						permission: true,
+						index: 'time'
+					}
+				},
+				{
 					path: '/home/order',
 					name: 'order',
 					component: resolve => require(['../components/page/order/order.vue'], resolve),
@@ -77,11 +87,21 @@ export default new Router({
 					}
 				},
 				{
+					path: '/home/appraise',
+					name: 'appraise',
+					component: resolve => require(['../components/page/order/appraise.vue'], resolve),
+					meta: {
+						title: '订单列表',
+						permission: true,
+						index: 'appraise'
+					}
+				},
+				{
 					path: '/home/close',
 					name: 'close',
 					component: resolve => require(['../components/page/order/close.vue'], resolve),
 					meta: {
-						title: '结算订单',
+						title: '评价浏览',
 						permission: true,
 						index: 'close'
 					}

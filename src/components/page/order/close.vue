@@ -32,14 +32,28 @@
 						<el-option v-for="item in orderStatusOptions" :key="item.id" :label="item.label" :value="item.value"></el-option>
 					</el-select>
 				</template>
-				
+
 				&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 				<el-button type="primary" icon="search" @click="search">搜索</el-button>
-				<el-button type="primary" icon="add" @click="reset">重置</el-button>
+				<el-button type="success" icon="add" @click="reset">重置</el-button>
+				<!-- <a :href="Rurl">
+					<el-button type="primary" icon="search" @click="outputExamine">导出报表</el-button>
+				</a> -->
+				&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+				
+				
+				
+				<el-button type="text" icon="el-icon-s-order" @click="handleStatus('yes')">一键结算</el-button>
+				<el-button type="text" icon="el-icon-s-order" @click="handleStatus('no')">一键未结算</el-button>
+				<el-button type="text" icon="el-icon-s-order" @click="handleStatus('dispute')">一键纠纷</el-button>
+
 			</div>
 			<!-- 信息展示 -->
-			<el-table :data="tableData" border class="table" ref="multipleTable" v-loading="$store.state.requestLoading">
+			<el-table :data="tableData" border class="table" tooltip-effect="dark" ref="multipleTable" @selection-change="handleSelectionChange">
 				<template slot-scope="scope">
+					<el-table-column type="selection" width="40">
+					</el-table-column>
+					
 					<el-table-column :show-overflow-tooltip="true" type="index" label="序号" align="center" sortable width="50"></el-table-column>
 					<el-table-column :formatter="formatAllData" :show-overflow-tooltip="true" width="100" prop="coachName" label="教练姓名"></el-table-column>
 					<el-table-column :formatter="formatAllData" :show-overflow-tooltip="true" width="100" prop="coachSettlementStatus"
@@ -65,6 +79,7 @@
 					<el-table-column :show-overflow-tooltip="true" width="100" prop="price" label="课时价格"></el-table-column>
 					<el-table-column :show-overflow-tooltip="true" width="100" prop="attendStatus" label="上课状态" :formatter="formatAttendStatus"></el-table-column>
 					<el-table-column :show-overflow-tooltip="true" width="180" prop="orderChildRemark" label="子订单备注"></el-table-column>
+
 				</template>
 			</el-table>
 			<div class="pagination">
@@ -92,6 +107,9 @@
 				}, {
 					value: 'no',
 					label: '未结算'
+				}, {
+					value: 'dispute',
+					label: '纠纷'
 				}],
 				isCoachSettlementOptions: [{
 					value: '',
@@ -141,6 +159,8 @@
 				// 默认每页显示的条数（可修改）
 				PageSize: 10,
 
+				Rurl: "#",
+
 
 				//辅助元素定位
 				idx: -1,
@@ -148,8 +168,41 @@
 				//提交表单
 				form: {},
 				count: 0,
-
+				selectionList: [],
 			};
+		},
+		watch: {
+			timeData(newName, oldName) {
+				var sTime = this.timeData[0];
+				var eTime = this.timeData[1];
+				var strOrder = "";
+				var strisCoachSettlementData = "";
+				var strorderStatusData = "";
+
+
+				var strSTime = "";
+				var strETime = "";
+				this.coachSettlementStatusData == "全部" ? strOrder = "" : strOrder = this.coachSettlementStatusData
+				this.isCoachSettlementData == "全部" ? strisCoachSettlementData = "" : strisCoachSettlementData = this.isCoachSettlementData
+				this.orderStatusData == "全部" ? strorderStatusData = "" : strorderStatusData = this.orderStatusData
+
+				if (this.timeData == 0 || this.timeData == null || this.timeData == "") {
+					strSTime = "";
+					strETime = "";
+				} else {
+					strSTime = sTime.getFullYear() + '/' + (sTime.getMonth() + 1) + '/' + sTime.getDate() + " " +
+						sTime.getHours() +
+						":" + sTime
+						.getMinutes() + ":" + sTime.getSeconds();
+
+					strETime = eTime.getFullYear() + '/' + (eTime.getMonth() + 1) + '/' + eTime.getDate() + " " +
+						eTime.getHours() +
+						":" + eTime
+						.getMinutes() + ":" + eTime.getSeconds();
+
+					this.Rurl = "/api/export/order?startDate=" + strSTime + "&endDate=" + strETime + "&strOrder=" + strOrder;
+				}
+			}
 		},
 		created() {
 
@@ -166,6 +219,33 @@
 			}
 		},
 		methods: {
+			handleStatus(status) {
+				this.loading = true;
+				this.$axios
+					.post('/orderChild/updateCoachSettlementStatus', {
+						coachSettlementStatus: status,
+						orderChildId: this.selectionList.toString()
+					})
+					.then(res => {
+						if (!res.success) {
+							this.$message.error("修改错误,请稍后重试");
+							this.loading = false;
+							return;
+						}
+						this.getData();
+					});
+				this.loading = false;
+			},
+
+
+			handleSelectionChange(val) {
+				var closeOrderList = val;
+				this.selectionList = [];
+				closeOrderList.forEach((item) => {
+					this.selectionList.push(item.orderChildId);
+				});
+			},
+
 			formatAllData(row, column) {
 				var returnData;
 				switch (column.property) {
@@ -179,7 +259,9 @@
 					case "coachSettlementStatus":
 						if (row.coachSettlementStatus == "yes") {
 							returnData = "已经结算";
-						} else {
+						} else if(row.coachSettlementStatus == "dispute"){
+							returnData = "纠纷";
+						}else{
 							returnData = "未结算";
 						}
 						break;
@@ -193,7 +275,7 @@
 					case "phone":
 						if (row.phone == "" || row.phone == null) {
 							returnData = "未绑定教练";
-						}else{
+						} else {
 							returnData = row.phone;
 						}
 						break;
@@ -281,11 +363,11 @@
 				var strATime = "";
 				var strFTime = "";
 				if (this.timeData == null || this.timeData == "" || this.timeData == 0) {
-					
+
 				} else {
 					var atime = this.timeData[0];
 					var ftime = this.timeData[1];
-					
+
 					strATime = atime.getFullYear() + '-' + (atime.getMonth() + 1) + '-' + atime.getDate() + " " +
 						atime.getHours() +
 						":" + atime
@@ -302,7 +384,7 @@
 					.post('/coach/queryCoachInfo', {
 						pageNo: this.currentPage,
 						pageSize: this.PageSize,
-						coachId: '',
+						//coachId: '',
 						phone: this.coachPhoneData,
 						attendTime: strATime,
 						finishTime: strFTime,

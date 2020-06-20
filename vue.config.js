@@ -19,7 +19,7 @@ module.exports = {
             '/': {
                 ws: false, // proxy websockets
               //  target: 'http://localhost:8081',
-               target: 'http://192.168.1.108:8081',//测试
+               target: 'http://192.168.0.211:8081',//测试
                 changeOrigin: true,
                 pathRewrite: {
                     '^/': '/'   //需要rewrite重写的,
