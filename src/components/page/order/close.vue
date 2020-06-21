@@ -36,12 +36,11 @@
 				&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 				<el-button type="primary" icon="search" @click="search">搜索</el-button>
 				<el-button type="success" icon="add" @click="reset">重置</el-button>
-				<!-- <a :href="Rurl">
+				<a :href="Rurl">
 					<el-button type="primary" icon="search" @click="outputExamine">导出报表</el-button>
-				</a> -->
-				&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+				</a>
 				
-				
+				&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 				
 				<el-button type="text" icon="el-icon-s-order" @click="handleStatus('yes')">一键结算</el-button>
 				<el-button type="text" icon="el-icon-s-order" @click="handleStatus('no')">一键未结算</el-button>
@@ -178,14 +177,13 @@
 				var strOrder = "";
 				var strisCoachSettlementData = "";
 				var strorderStatusData = "";
-
-
+				
 				var strSTime = "";
 				var strETime = "";
-				this.coachSettlementStatusData == "全部" ? strOrder = "" : strOrder = this.coachSettlementStatusData
-				this.isCoachSettlementData == "全部" ? strisCoachSettlementData = "" : strisCoachSettlementData = this.isCoachSettlementData
-				this.orderStatusData == "全部" ? strorderStatusData = "" : strorderStatusData = this.orderStatusData
-
+				this.coachSettlementStatusData == "全部" || this.coachSettlementStatusData == "" ? strOrder = "" : strOrder = this.coachSettlementStatusData
+				this.isCoachSettlementData == "全部" || this.isCoachSettlementData == "" ? strisCoachSettlementData = "" : strisCoachSettlementData = this.isCoachSettlementData
+				this.orderStatusData == "全部" || this.orderStatusData == "" ? strorderStatusData = "" : strorderStatusData = this.orderStatusData
+				
 				if (this.timeData == 0 || this.timeData == null || this.timeData == "") {
 					strSTime = "";
 					strETime = "";
@@ -200,7 +198,100 @@
 						":" + eTime
 						.getMinutes() + ":" + eTime.getSeconds();
 
-					this.Rurl = "/api/export/order?startDate=" + strSTime + "&endDate=" + strETime + "&strOrder=" + strOrder;
+					this.Rurl = "/api/export/settleStatus?attendTime=" + strSTime + "&finishTime=" + strETime + "&isCoachSettlement=" + strisCoachSettlementData + "&orderStatus=" + strorderStatusData + "&coachSettlementStatus=" + strOrder;
+				}
+			},
+			coachSettlementStatusData(newName, oldName) {
+				var sTime = this.timeData[0];
+				var eTime = this.timeData[1];
+				var strOrder = "";
+				var strisCoachSettlementData = "";
+				var strorderStatusData = "";
+				
+				var strSTime = "";
+				var strETime = "";
+				this.coachSettlementStatusData == "全部" || this.coachSettlementStatusData == "" ? strOrder = "" : strOrder = this.coachSettlementStatusData
+				this.isCoachSettlementData == "全部" || this.isCoachSettlementData == "" ? strisCoachSettlementData = "" : strisCoachSettlementData = this.isCoachSettlementData
+				this.orderStatusData == "全部" || this.orderStatusData == "" ? strorderStatusData = "" : strorderStatusData = this.orderStatusData
+				
+				
+				if (this.timeData == 0 || this.timeData == null || this.timeData == "") {
+					strSTime = "";
+					strETime = "";
+				} else {
+					strSTime = sTime.getFullYear() + '/' + (sTime.getMonth() + 1) + '/' + sTime.getDate() + " " +
+						sTime.getHours() +
+						":" + sTime
+						.getMinutes() + ":" + sTime.getSeconds();
+			
+					strETime = eTime.getFullYear() + '/' + (eTime.getMonth() + 1) + '/' + eTime.getDate() + " " +
+						eTime.getHours() +
+						":" + eTime
+						.getMinutes() + ":" + eTime.getSeconds();
+			
+					this.Rurl = "/api/export/settleStatus?attendTime=" + strSTime + "&finishTime=" + strETime + "&isCoachSettlement=" + strisCoachSettlementData + "&orderStatus=" + strorderStatusData + "&coachSettlementStatus=" + strOrder;
+				}
+			},
+			isCoachSettlementData(newName, oldName) {
+				var sTime = this.timeData[0];
+				var eTime = this.timeData[1];
+				var strOrder = "";
+				var strisCoachSettlementData = "";
+				var strorderStatusData = "";
+				
+				var strSTime = "";
+				var strETime = "";
+				this.coachSettlementStatusData == "全部" || this.coachSettlementStatusData == "" ? strOrder = "" : strOrder = this.coachSettlementStatusData
+				this.isCoachSettlementData == "全部" || this.isCoachSettlementData == "" ? strisCoachSettlementData = "" : strisCoachSettlementData = this.isCoachSettlementData
+				this.orderStatusData == "全部" || this.orderStatusData == "" ? strorderStatusData = "" : strorderStatusData = this.orderStatusData
+				
+				alert(strisCoachSettlementData);
+				
+				if (this.timeData == 0 || this.timeData == null || this.timeData == "") {
+					strSTime = "";
+					strETime = "";
+				} else {
+					strSTime = sTime.getFullYear() + '/' + (sTime.getMonth() + 1) + '/' + sTime.getDate() + " " +
+						sTime.getHours() +
+						":" + sTime
+						.getMinutes() + ":" + sTime.getSeconds();
+			
+					strETime = eTime.getFullYear() + '/' + (eTime.getMonth() + 1) + '/' + eTime.getDate() + " " +
+						eTime.getHours() +
+						":" + eTime
+						.getMinutes() + ":" + eTime.getSeconds();
+			
+					this.Rurl = "/api/export/settleStatus?attendTime=" + strSTime + "&finishTime=" + strETime + "&isCoachSettlement=" + strisCoachSettlementData + "&orderStatus=" + strorderStatusData + "&coachSettlementStatus=" + strOrder;
+				}
+			},
+			orderStatusData(newName, oldName) {
+				var sTime = this.timeData[0];
+				var eTime = this.timeData[1];
+				var strOrder = "";
+				var strisCoachSettlementData = "";
+				var strorderStatusData = "";
+				
+				var strSTime = "";
+				var strETime = "";
+				this.coachSettlementStatusData == "全部" || this.coachSettlementStatusData == "" ? strOrder = "" : strOrder = this.coachSettlementStatusData
+				this.isCoachSettlementData == "全部" || this.isCoachSettlementData == "" ? strisCoachSettlementData = "" : strisCoachSettlementData = this.isCoachSettlementData
+				this.orderStatusData == "全部" || this.orderStatusData == "" ? strorderStatusData = "" : strorderStatusData = this.orderStatusData
+				
+				if (this.timeData == 0 || this.timeData == null || this.timeData == "") {
+					strSTime = "";
+					strETime = "";
+				} else {
+					strSTime = sTime.getFullYear() + '/' + (sTime.getMonth() + 1) + '/' + sTime.getDate() + " " +
+						sTime.getHours() +
+						":" + sTime
+						.getMinutes() + ":" + sTime.getSeconds();
+			
+					strETime = eTime.getFullYear() + '/' + (eTime.getMonth() + 1) + '/' + eTime.getDate() + " " +
+						eTime.getHours() +
+						":" + eTime
+						.getMinutes() + ":" + eTime.getSeconds();
+			
+					this.Rurl = "/api/export/settleStatus?attendTime=" + strSTime + "&finishTime=" + strETime + "&isCoachSettlement=" + strisCoachSettlementData + "&orderStatus=" + strorderStatusData + "&coachSettlementStatus=" + strOrder;
 				}
 			}
 		},
@@ -219,6 +310,12 @@
 			}
 		},
 		methods: {
+			outputExamine() {
+				if (this.timeData == 0 || this.timeData == null || this.timeData == "") {
+					this.$message.error("请选择时间");
+				}
+			},
+			
 			handleStatus(status) {
 				this.loading = true;
 				this.$axios

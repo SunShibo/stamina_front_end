@@ -2,13 +2,22 @@
 	<div class="table" v-loading="loading">
 		<div class="crumbs">
 			<el-breadcrumb separator="/">
-				<el-breadcrumb-item><i class="el-icon-lx-cascades">订单列表</i></el-breadcrumb-item>
+				<el-breadcrumb-item><i class="el-icon-lx-cascades">评价浏览</i></el-breadcrumb-item>
 			</el-breadcrumb>
 		</div>
-
-
+		
 		<div class="container">
-
+			<div class="handle-box">
+				<el-input v-model="orderNumberTitle" placeholder="订单号码" class="handle-input mr10"></el-input>
+				<el-input v-model="userContactNameTitle" placeholder="联系人姓名" class="handle-input mr10"></el-input>
+				<el-input v-model="userContactPhoneTitle" placeholder="联系人电话" class="handle-input mr10"></el-input>
+				<el-input v-model="studentNameTitle" placeholder="学生姓名" class="handle-input mr10"></el-input>
+				<el-input v-model="coachNameTitle" placeholder="教练名字" class="handle-input mr10"></el-input>
+				<el-input v-model="coachPhoneTitle" placeholder="教练电话" class="handle-input mr10"></el-input>
+				
+				<el-button type="primary" icon="search" @click="search">搜索</el-button>
+				<el-button type="success" icon="search" @click="reset">重置</el-button>
+			</div>
 			<el-table :data="tableData" border class="table" tooltip-effect="dark" ref="multipleTable">
 				<template slot-scope="scope">
 					<el-table-column :show-overflow-tooltip="true" type="index" label="序号" align="center" sortable width="50"></el-table-column>
@@ -35,6 +44,14 @@
 		name: 'course',
 		data() {
 			return {
+				orderNumberTitle:"",
+				userContactNameTitle:"",
+				userContactPhoneTitle:"",
+				studentNameTitle:"",
+				coachNameTitle:"",
+				coachPhoneTitle:"",
+				
+				
 				loading: true,
 				// 总数据
 				tableData: [],
@@ -60,12 +77,34 @@
 		},
 
 		methods: {
+			search(){
+				this.getData();
+			},
+			
+			reset(){
+				this.orderNumberTitle = "";
+				this.userContactNameTitle = "";
+				this.userContactPhoneTitle = "";
+				this.studentNameTitle = "";
+				this.coachNameTitle = "";
+				this.coachPhoneTitle = "";
+				
+				this.getData();
+			},
+			
 			getData() {
 				this.loading = true;
 				this.$axios
 					.post('/orderChildAppraise/queryAppraise', {
 						pageNo: this.currentPage,
 						pageSize: this.PageSize,
+						
+						orderNumber:this.orderNumberTitle,
+						userContactName:this.userContactNameTitle,
+						userContactPhone:this.userContactPhoneTitle,
+						studentName:this.studentNameTitle,
+						coachName:this.coachNameTitle,
+						coachPhone:this.coachPhoneTitle
 					})
 					.then(res => {
 						if (!res.success) {
@@ -126,4 +165,16 @@
 </script>
 
 <style>
+	.handle-box {
+		margin-bottom: 20px;
+	}
+	
+	.handle-select {
+		width: 120px;
+	}
+	
+	.handle-input {
+		width: 150px;
+		display: inline-block;
+	}
 </style>

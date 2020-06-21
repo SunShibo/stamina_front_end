@@ -91,7 +91,7 @@ export default new Router({
 					name: 'appraise',
 					component: resolve => require(['../components/page/order/appraise.vue'], resolve),
 					meta: {
-						title: '订单列表',
+						title: '评价浏览',
 						permission: true,
 						index: 'appraise'
 					}

@@ -320,6 +320,31 @@
 
 					this.Rurl = "/api/export/order?startDate=" + strSTime + "&endDate=" + strETime + "&strOrder=" + strOrder;
 				}
+			},
+			classOrderStatus(newName, oldName) {
+				var sTime = this.selectTimeData[0];
+				var eTime = this.selectTimeData[1];
+				var strOrder = "";
+				var strSTime = "";
+				var strETime = "";
+				this.classOrderStatus == "全部" || this.classOrderStatus == "" ? strOrder = "" : strOrder = this.classOrderStatus
+				
+				if (this.selectTimeData == 0 || this.selectTimeData == null || this.selectTimeData == "") {
+					strSTime = "";
+					strETime = "";
+				} else {
+					strSTime = sTime.getFullYear() + '/' + (sTime.getMonth() + 1) + '/' + sTime.getDate() + " " +
+						sTime.getHours() +
+						":" + sTime
+						.getMinutes() + ":" + sTime.getSeconds();
+			
+					strETime = eTime.getFullYear() + '/' + (eTime.getMonth() + 1) + '/' + eTime.getDate() + " " +
+						eTime.getHours() +
+						":" + eTime
+						.getMinutes() + ":" + eTime.getSeconds();
+			
+					this.Rurl = "/api/export/order?startDate=" + strSTime + "&endDate=" + strETime + "&strOrder=" + strOrder;
+				}
 			}
 		},
 
@@ -425,7 +450,7 @@
 					this.$message.error("请选择时间");
 				}
 			},
-
+			
 			changeRemark() {
 				var remarkForm = this.form;
 				this.form = {
@@ -543,17 +568,24 @@
 						this.loading = false; 
 						30178
 						*/
-				var sTime = this.selectTimeData[0];
-				var eTime = this.selectTimeData[1];
+				var sTime = "";
+				var eTime = "";
 				var strOrder = "";
 				var strSTime = "";
 				var strETime = "";
+				
+				
+				
+				
 				this.classOrderStatus == "全部" ? strOrder = "" : strOrder = this.classOrderStatus
 
 				if (this.selectTimeData == 0 || this.selectTimeData == null || this.selectTimeData == "") {
 					strSTime = "";
 					strETime = "";
 				} else {
+					sTime = this.selectTimeData[0]
+					eTime = this.selectTimeData[1]
+					
 					strSTime = sTime.getFullYear() + '/' + (sTime.getMonth() + 1) + '/' + sTime.getDate() + " " +
 						sTime.getHours() +
 						":" + sTime
