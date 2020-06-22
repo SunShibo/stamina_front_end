@@ -101,7 +101,7 @@ export default new Router({
 					name: 'close',
 					component: resolve => require(['../components/page/order/close.vue'], resolve),
 					meta: {
-						title: '评价浏览',
+						title: '结算订单',
 						permission: true,
 						index: 'close'
 					}
