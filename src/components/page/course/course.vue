@@ -16,6 +16,8 @@
 			 v-loading="$store.state.requestLoading">
 				<el-table-column :show-overflow-tooltip="true" type="index" label="序号" align="center" sortable width="50"></el-table-column>
 				<el-table-column :show-overflow-tooltip="true" width="140" prop="courseName" label="课程名称"></el-table-column>
+				<el-table-column :formatter="formatStatus" :show-overflow-tooltip="true" width="140" prop="shelvesStatus" label="上架状态"></el-table-column>
+				<el-table-column :show-overflow-tooltip="true" width="140" prop="describe" label="课程描述"></el-table-column>
 				<el-table-column :show-overflow-tooltip="true" width="140" prop="describe" label="课程描述"></el-table-column>
 				<el-table-column :show-overflow-tooltip="true" width="100" prop="siteType" label="训练场地类型"></el-table-column>
 				<el-table-column :show-overflow-tooltip="true" width="130" prop="thumbnailPic" label = "缩略图">
@@ -24,7 +26,7 @@
 					</template>
 				</el-table-column>
 				<el-table-column :show-overflow-tooltip="true" width="130" prop="introducePic" label = "介绍图">
-					<template slot-scope="scope">
+					<template slot-scope="scope">-
 						<img :src="scope.row.introducePic" width="50" height="50" />
 					</template>
 				</el-table-column>
@@ -267,11 +269,23 @@
 									</el-form-item>
 								</div>
 							</el-col>
+							
+							
 							<el-col :span="12">
 								<div class="grid-content bg-purple-light">
 									<el-form-item label-width="100px" label="类型" prop="type" :rules="[{ required: true, message: '该项不能为空', trigger: 'change' }]">
 										<el-select v-model="form.type" clearable placeholder="请选择" style="width:260px">
 											<el-option v-for="item in typeOptions" :key="item.id" :label="item.value" :value="item.value"></el-option>
+										</el-select>
+									</el-form-item>
+								</div>
+							</el-col>
+							
+							<el-col :span="12">
+								<div class="grid-content bg-purple">
+									<el-form-item label-width="100px" label="上架状态" prop="shelvesStatus" :rules="[{ required: true, message: '该项不能为空', trigger: 'change' }]">
+										<el-select v-model="form.shelvesStatus" clearable placeholder="请选择" style="width:260px">
+											<el-option v-for="item in shelvesStatusOptions"  :key="item.id" :label="item.cName" :value="item.eName"></el-option>
 										</el-select>
 									</el-form-item>
 								</div>
@@ -381,6 +395,16 @@
 				idx: -1,
 				//标签集合
 				tagOptions: [],
+				
+				shelvesStatusOptions:[{
+					id: 0,
+					cName: "已上架",
+					eName: "yes"
+				},{
+					id: 1,
+					cName: "未上架",
+					eName: "no"
+				}],
 				//类型集合
 				typeOptions: [],
 				//课时框的默认状态
@@ -534,6 +558,16 @@
 				
 				return time.getFullYear() + '-' + (time.getMonth() + 1) + '-' + time.getDate() + " " + time.getHours() + ":" + time
 					.getMinutes() + ":" + time.getSeconds();
+			},
+			
+			formatStatus(row){
+				var returnData = ""
+				if(row.shelvesStatus == "yes"){
+					returnData = "已上架"
+				}else{
+					returnData = "未上架"
+				}
+				return returnData;
 			},
 
 			formatDate(row) {
@@ -900,6 +934,7 @@
 					courseName: item.courseName,
 					describe: item.describe,
 					siteType: item.siteType,
+					shelvesStatus: item.shelvesStatus,
 					thumbnailPic: item.thumbnailPic,
 					introducePic: item.introducePic,
 					studentsSex: item.studentsSex,
