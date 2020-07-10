@@ -49,7 +49,7 @@
 
     <!-- 编辑弹出框 -->
     <el-dialog title="新增/编辑" :visible.sync="editVisible" width="50%" :close-on-click-modal="closeOnClickModal">
-      <el-form ref="userform" :model="form" :rules="rules" label-width="50px">
+      <el-form ref="siteform" :model="form" :rules="rules" label-width="50px">
         <el-form-item label-width="100px" label="地点" prop="name" >
           <el-input v-model="form.name"></el-input>
         </el-form-item>
@@ -81,7 +81,7 @@
 <script>
   import menu from '../../common/menu'
   export default {
-    name: 'user',
+    name: 'site',
     data() {
 
       return {
@@ -150,7 +150,7 @@
         this.editVisible=true;
       },
       saveEdit(formName) {
-        this.$refs.userform.validate(valid => {
+        this.$refs.siteform.validate(valid => {
           if (valid) {
             delete this.form.createTime;
             delete this.form.updateTime;

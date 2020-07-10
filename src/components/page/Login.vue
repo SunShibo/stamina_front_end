@@ -31,8 +31,8 @@
         data: function () {
             return {
                 ruleForm: {
-                    mobile: '666666',
-                    password: '666666'
+                    mobile: '',
+                    password: ''
                 },
                 rules: {
                     username: [
@@ -76,7 +76,7 @@
         position: relative;
         width: 100%;
         height: 100%;
-        background: url(../../assets/img/u=2309153370,2688280452&fm=26&gp=0.jpg) no-repeat;
+        background: url(../../assets/img/illust_59954530_20200604_132105.jpg) no-repeat;
         background-size: 100% 100%;
     }
 
