@@ -80,14 +80,14 @@
 						<span v-show="tableData.attendStudentNumber == null" style="font-size: 20px;">数据暂无</span>
 					</div>
 				</el-col>
-				<el-col :span="6">
+				<!-- <el-col :span="6">
 					<div class="grid-content bg-purple">
 						<span style="font-size: 12px;">插班的学生人数</span>
 						<br />
 						<span v-show="tableData.placementStudentNumber != null" style="font-size: 20px;">{{tableData.placementStudentNumber}}人</span>
 						<span v-show="tableData.placementStudentNumber == null" style="font-size: 20px;">数据暂无</span>
 					</div>
-				</el-col>
+				</el-col> -->
 
 				<el-col :span="6">
 					<div class="grid-content bg-purple">
@@ -97,30 +97,20 @@
 						<span v-show="tableData.joinOrderSucceed == null" style="font-size: 20px;">数据暂无</span>
 					</div>
 				</el-col>
-				<el-col :span="6">
+				<!-- <el-col :span="6">
 					<div class="grid-content bg-purple">
 						<span style="font-size: 12px;">单位订单拼单时长（分钟）</span>
 						<br />
 						<span v-show="tableData.junitOrderTime != null" style="font-size: 20px;">{{tableData.junitOrderTime}}分钟</span>
 						<span v-show="tableData.junitOrderTime == null" style="font-size: 20px;">数据暂无</span>
 					</div>
-				</el-col>
+				</el-col> -->
 				<el-col :span="6">
 					<div class="grid-content bg-purple">
 						<span style="font-size: 12px;">拼单平均时长（分钟）</span>
 						<br />
 						<span v-show="tableData.joinOrderAverageTime != null" style="font-size: 20px;">{{tableData.joinOrderAverageTime}}分钟</span>
 						<span v-show="tableData.joinOrderAverageTime == null" style="font-size: 20px;">数据暂无</span>
-					</div>
-				</el-col>
-			</el-row>
-			<el-row :gutter="20">
-				<el-col :span="6">
-					<div class="grid-content bg-purple">
-						<span style="font-size: 12px;">滞销课数量</span>
-						<br />
-						<span v-show="tableData.unsoldCourseNumber != null" style="font-size: 20px;">{{tableData.unsoldCourseNumber}}门</span>
-						<span v-show="tableData.unsoldCourseNumber == null" style="font-size: 20px;">数据暂无</span>
 					</div>
 				</el-col>
 				<el-col :span="6">
@@ -131,6 +121,17 @@
 						<span v-show="tableData.coachNumber == null" style="font-size: 20px;">数据暂无</span>
 					</div>
 				</el-col>
+			</el-row>
+			<el-row :gutter="20">
+				<!-- <el-col :span="6">
+					<div class="grid-content bg-purple">
+						<span style="font-size: 12px;">滞销课数量</span>
+						<br />
+						<span v-show="tableData.unsoldCourseNumber != null" style="font-size: 20px;">{{tableData.unsoldCourseNumber}}门</span>
+						<span v-show="tableData.unsoldCourseNumber == null" style="font-size: 20px;">数据暂无</span>
+					</div>
+				</el-col> -->
+				
 			</el-row>
 		</div>
 	</div>
