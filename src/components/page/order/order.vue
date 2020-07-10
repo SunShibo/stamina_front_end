@@ -653,6 +653,7 @@
 
 			reset() {
 				this.orderNumberTitle = "";
+				this.joinOrderNumberTitle = "";
 				this.classOrderStatus = "";
 				this.selectTimeData = [];
 				this.getData();

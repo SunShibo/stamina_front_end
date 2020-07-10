@@ -244,9 +244,6 @@
 				this.coachSettlementStatusData == "全部" || this.coachSettlementStatusData == "" ? strOrder = "" : strOrder = this.coachSettlementStatusData
 				this.isCoachSettlementData == "全部" || this.isCoachSettlementData == "" ? strisCoachSettlementData = "" : strisCoachSettlementData = this.isCoachSettlementData
 				this.orderStatusData == "全部" || this.orderStatusData == "" ? strorderStatusData = "" : strorderStatusData = this.orderStatusData
-				
-				alert(strisCoachSettlementData);
-				
 				if (this.timeData == 0 || this.timeData == null || this.timeData == "") {
 					strSTime = "";
 					strETime = "";

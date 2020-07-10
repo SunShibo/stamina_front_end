@@ -2,7 +2,7 @@
 	<div class="table" v-loading="loading">
 		<div class="crumbs">
 			<el-breadcrumb separator="/">
-				<el-breadcrumb-item><i class="el-icon-lx-cascades">课程列表</i></el-breadcrumb-item>
+				<el-breadcrumb-item><i class="el-icon-lx-cascades">上课时间</i></el-breadcrumb-item>
 			</el-breadcrumb>
 		</div>
 		<div class="container">
@@ -305,6 +305,7 @@
 							this.$message.error("获取数据错误,请稍后再试");
 						}
 						this.tableData = res.data.records;
+						this.totalCount = res.data.total;
 						this.loading = false;
 					});
 			},
