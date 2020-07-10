@@ -25,7 +25,7 @@
         <el-table-column prop="radiusOf" label="半径(米)" align="center" :show-overflow-tooltip="true"></el-table-column>
         <el-table-column prop="status" label="状态" align="center" :formatter="formStatus" :show-overflow-tooltip="true"></el-table-column>
         <el-table-column prop="createTime" label="创建时间" align="center" :show-overflow-tooltip="true" :formatter="dateFormatCreate"></el-table-column>
-        <el-table-column prop="updateTime" label="修改時間" align="center" :show-overflow-tooltip="true" :formatter="dateFormatUpdate"></el-table-column>
+        <el-table-column prop="updateTime" label="修改时间" align="center" :show-overflow-tooltip="true" :formatter="dateFormatUpdate"></el-table-column>
         <el-table-column label="操作" width="280" align="center">
           <template slot-scope="scope">
             <el-button
