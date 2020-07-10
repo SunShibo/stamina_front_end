@@ -315,19 +315,23 @@
 			
 			handleStatus(status) {
 				this.loading = true;
-				this.$axios
-					.post('/orderChild/updateCoachSettlementStatus', {
-						coachSettlementStatus: status,
-						orderChildId: this.selectionList.toString()
-					})
-					.then(res => {
-						if (!res.success) {
-							this.$message.error("修改错误,请稍后重试");
-							this.loading = false;
-							return;
-						}
-						this.getData();
-					});
+				if(this.selectionList != null && this.selectionList != "" && this.selectionList != []){
+					this.$axios
+						.post('/orderChild/updateCoachSettlementStatus', {
+							coachSettlementStatus: status,
+							orderChildId: this.selectionList.toString()
+						})
+						.then(res => {
+							if (!res.success) {
+								this.$message.error("修改错误,请稍后重试");
+								this.loading = false;
+								return;
+							}
+							this.getData();
+						});
+				}else{
+					this.$message.error("请选择修改对象");
+				}
 				this.loading = false;
 			},
 
