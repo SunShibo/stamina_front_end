@@ -101,7 +101,7 @@
 			feedbackStatus(val, oldVal) {
 				console.log("inputVal = " + val + " , oldValue = " + oldVal);
 				this.fstatus = val;
-				this.getData();
+				this.search();
 			},
 			readVisible(val, oldVal) {
 				if (val == false) {
@@ -181,6 +181,7 @@
 				this.multipleSelection = val;
 			},
 			search() {
+				this.currentPage = 1;
 				this.getData();
 			},
 

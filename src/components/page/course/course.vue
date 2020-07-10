@@ -691,6 +691,7 @@
 				}
 			},
 			search() {
+				this.currentPage = 1;
 				this.getData();
 			},
 			//点击添加框
