@@ -81,7 +81,7 @@
 						</el-time-select>
 					</el-form-item>
 					
-					<el-form-item label-width="100px" label="权重" prop="sortNum" :rules="[{type: 'number', message: '课时必须为数字值'}]">
+					<el-form-item label-width="100px" label="权重" prop="sortNum" :rules="[{type: 'number', message: '权重必须为数字值'}]">
 						<el-input v-model.number="form.sortNum"></el-input>
 					</el-form-item>
 				</template>
