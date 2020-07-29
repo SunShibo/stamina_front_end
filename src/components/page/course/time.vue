@@ -18,7 +18,7 @@
 				<el-table-column :formatter="formatAllData" :show-overflow-tooltip="true" prop="schedulingName" label="排课规律"></el-table-column>
 				<el-table-column fixed="right" label="操作" width="150" align="center">
 					<template slot-scope="scope">
-						<el-button type="text" icon="el-icon-edit" @click="handleEdit(scope.$index, scope.row)">编辑</el-button>
+						<el-button type="text" icon="el-icon-edit" @click="handleEdit(scope.row)">编辑</el-button>
 						
 						
 						<el-popconfirm title="确认删除此项目吗？" @onConfirm="handleDelete(scope.$index, scope.row)">
@@ -79,6 +79,10 @@
 						      minTime: form.openTime
 						    }">
 						</el-time-select>
+					</el-form-item>
+					
+					<el-form-item label-width="100px" label="权重" prop="sortNum" :rules="[{type: 'number', message: '课时必须为数字值'}]">
+						<el-input v-model.number="form.sortNum"></el-input>
 					</el-form-item>
 				</template>
 
@@ -191,16 +195,16 @@
 				})
 			},
 			
-			handleEdit(index,row){
-				this.form = row;
-				
-				var schedulingStr = row.scheduling.split(",");
+			handleEdit(row){
+				this.form = {};
+				this.form = JSON.parse(JSON.stringify(row));
+				var schedulingStr = this.form.scheduling.toString().split(",");
 				var schedulingList = [];
 				schedulingStr.forEach((item, index, value) =>{
 					schedulingList.push(parseInt(item));
 				});
-				this.form.openTime = new Date(row.openTime).format("hh:mm");
-				this.form.closeTime =  new Date(row.closeTime).format("hh:mm");
+				this.form.openTime = new Date(this.form.openTime).format("hh:mm");
+				this.form.closeTime = new Date(this.form.closeTime).format("hh:mm");
 				this.form.scheduling = schedulingList;
 				this.editVisible = true;
 			},
@@ -245,6 +249,7 @@
 						upForm = {
 							type: this.form.type,
 							model: this.form.model,
+							sortNum: this.form.sortNum,
 							openTime:this.form.openTime + ":00",
 							closeTime:this.form.closeTime + ":00",
 							schedulingName: schedulingNameStr,
@@ -314,10 +319,11 @@
 				var returnData;
 				switch (column.property) {
 					case "openTime":
-						returnData = new Date(row.openTime).format("hh:mm:ss") + " - " + new Date(row.closeTime).format("hh:mm:ss");
+						returnData = new Date(row.openTime).format("hh:mm:ss").toString() + " - " + new Date(row.closeTime).format("hh:mm:ss").toString();
 						break;
 					case "schedulingName":
-						var strSchedulingName = row.schedulingName.split(",");
+						var strSchedulingName = row.schedulingName;
+						strSchedulingName = strSchedulingName.split(",");
 						returnData = "";
 						strSchedulingName.forEach((item, index, value) => {
 							var name = item;

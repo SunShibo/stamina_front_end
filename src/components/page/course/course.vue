@@ -200,6 +200,10 @@
 						<el-form-item label-width="100px" label="训练频次" prop="frequency" :rules="[{ required: true, message: '该项不能为空', trigger: 'change' }]">
 							<el-input v-model="form.frequency"></el-input>
 						</el-form-item>
+						<el-form-item label-width="100px" label="权重" prop="sortNum" :rules="[{type: 'number', message: '课时必须为数字值'}]">
+							<el-input v-model.number="form.sortNum"></el-input>
+						</el-form-item>
+						
 					</div>
 				</el-row>
 				<!-- 基础图片类 -->
@@ -944,6 +948,7 @@
 					classNumber: item.classNumber,
 					label: item.label,
 					type: item.type,
+					sortNum: item.sortNum,
 					ruleIntroduction: item.ruleIntroduction
 				};
 				var labelStr = this.form.label;
