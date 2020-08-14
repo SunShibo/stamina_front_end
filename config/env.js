@@ -12,3 +12,4 @@ if (process.env.NODE_ENV == 'development') {
 export {
     baseURL,//导出baseUrl
 }
+//test
