@@ -158,6 +158,16 @@ export default new Router({
 						index: 'param'
 					}
 				},
+				{
+					path: '/home/coupons',
+					name: 'coupons',
+					component: resolve => require(['../components/page/config/coupons.vue'], resolve),
+					meta: {
+						title: '优惠券',
+						permission: true,
+						index: 'coupons'
+					}
+				},
 			]
 		},
 		{
