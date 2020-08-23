@@ -30,6 +30,7 @@
 						<el-button type="text" icon="el-icon-edit" @click="queryPatriarch( scope.row)">查看家长信息</el-button>
 						<el-button type="text" icon="el-icon-edit" @click="queryStudent(scope.row)">查看学员信息</el-button>
 						<el-button type="text" icon="el-icon-edit" @click="queryAddress(scope.row)">查看地址</el-button>
+						<el-button type="text" icon="el-icon-edit" @click="openCouponsByUser( scope.row)">分配优惠卷</el-button>
 					</template>
 				</el-table-column>
 			</el-table>
@@ -56,6 +57,40 @@
 			</span>
 		</el-dialog>
 
+		<!-- 添加优惠卷 -->
+		<el-dialog title="添加优惠卷" :visible.sync="coupons" width="50%">
+			<div>
+				<el-form ref="siteform" :model="form" :rules="rules" label-width="50px">
+					<!-- <el-form-item label-width="100px" label="用户Id" prop="cname" >
+					  <el-input v-model="form.userid"></el-input>
+					</el-form-item> -->
+				  <el-form-item label-width="100px" label="名称" prop="cname" >
+				    <el-input v-model="form.cname"></el-input>
+				  </el-form-item>
+				  <el-form-item label-width="100px" label="到达使用金额" prop="reachprice" >
+				    <el-input type="number" v-model="form.reachprice"></el-input>
+				  </el-form-item>
+				  <el-form-item label-width="100px" label="优惠金额" prop="amountreduction">
+				   <el-input type="number" v-model="form.amountreduction"></el-input>
+				  </el-form-item>
+				  <el-form-item label-width="100px" label="到期时间" prop="validitydata">
+				   <el-date-picker
+				         v-model="form.validitydata"
+				         type="date"
+				         placeholder="选择日期时间">
+				       </el-date-picker>
+				  </el-form-item>
+				 <el-form-item label-width="100px" label="规则" prop="rules">
+				    <el-input   v-model="form.rules"></el-input>
+				 </el-form-item>
+			
+				</el-form>
+				
+			</div>
+			<span slot="footer" class="dialog-footer">
+				<el-button type="primary" @click="saveEdit('form')">确 定</el-button>
+			</span>
+		</el-dialog>
 
 		<!-- 学员信息 -->
 		<el-dialog title="查看学员信息" :visible.sync="student" width="50%">
@@ -103,8 +138,20 @@
 		name: 'user',
 		data() {
 			return {
+				form: {
+				  id:'',
+				  cname:'',
+				  reachprice:'',
+				  amountreduction:'',
+				  validitydata:'',
+				  rules:'',
+				  minData:'',
+				  maxData:'',
+				  userType:'',
+				  userid:'',
+				},
 				loading: true,
-
+				coupons:false,
 				address: false,
 				addressData: [],
 				student: false,
@@ -199,6 +246,37 @@
 				this.loading = false;
 				this.visible = true;
 			},
+			openCouponsByUser(row) {
+				this.loading = true;
+				this.loading = false;
+				this.coupons = true;
+				this.form.userid=row.id;
+			},
+			saveEdit(formName) {
+			  this.$refs.siteform.validate(valid => {
+			    if (valid) {
+			        let fd = JSON.parse(JSON.stringify(this.form));
+			        delete fd.id;
+						  this.loading = true;
+			        this.$axios.post("/coupons/createCouponsByUser", fd).then(res => {
+			          if (!res.success) {
+			            this.$message.success(res.errMsg);
+			            return;
+			          }
+			          this.$message.success(`操作成功`);
+			          this.getData();
+			          this.editVisible = false;
+			        });
+						  this.loading = false;
+			      
+			    } else {
+			      console.error("error submit!!");
+			      return false;
+			    }
+			  });
+			  this.coupons = false;
+			},
+			
 			queryStudent(row) {
 				this.loading = true;
 				this.$axios.post("/studentBack/query", {

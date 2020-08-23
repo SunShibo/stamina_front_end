@@ -25,7 +25,7 @@
         <el-table-column prop="usingastate" label="使用状态" align="center" :show-overflow-tooltip="true"></el-table-column>
         <el-table-column prop="rules" label="规则说明" align="center"  :show-overflow-tooltip="true"></el-table-column>
         <el-table-column prop="userName" label="用户名" align="center" :show-overflow-tooltip="true" ></el-table-column>
-        <el-table-column prop="userPhone" label="用户手机号" align="center" :show-overflow-tooltip="true" :formatter="dateFormatUpdate"></el-table-column>
+        <el-table-column prop="userPhone" label="用户手机号" align="center" :show-overflow-tooltip="true" ></el-table-column>
       </el-table>
 	  <div class="pagination">
 	  	<el-pagination @size-change="handleSizeChange" @current-change="handleCurrentChange" :current-page="currentPage"
